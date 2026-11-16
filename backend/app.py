@@ -32,9 +32,10 @@ BASE_DIR = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
 )
 
-load_dotenv(
-    os.path.join(BASE_DIR, ".env")
-)
+try:
+    load_dotenv(os.path.join(BASE_DIR, ".env"))
+except Exception as e:
+    print(f"Notice: .env file skipped or inaccessible ({e})")
 
 
 # =========================================

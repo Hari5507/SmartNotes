@@ -902,646 +902,63 @@ button {
 }
 
 .mindmap-preview {
-    min-height: 175px;
-    margin-top: 17px;
+    min-height: 165px;
+    margin-top: 14px;
     position: relative;
-    overflow: hidden;
     border-radius: 12px;
-    background: #fff;
+    background: #fdfefe;
+    border: 1px solid #edf2f9;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mindmap-svg-lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .mind-center {
     position: absolute;
-    top: 64px;
-    left: calc(50% - 35px);
-    width: 70px;
-    height: 48px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 72px;
+    height: 44px;
     display: grid;
     place-items: center;
-    border-radius: 50%;
-    background: #ffe4e7;
-    color: #e0273b;
+    border-radius: 22px;
+    background: #ed2438;
+    color: #fff;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 12px;
+    box-shadow: 0 4px 12px rgba(237, 36, 56, 0.25);
     z-index: 2;
 }
 
 .node {
     position: absolute;
-    width: 45px;
-    height: 25px;
-    border-radius: 6px;
+    padding: 4px 9px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 2;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    white-space: nowrap;
 }
 
-.n1 { top: 22px; left: 13px; background: #bfe1ff; }
-.n2 { top: 22px; right: 13px; background: #ffdf9c; }
-.n3 { bottom: 20px; left: 13px; background: #bdeecb; }
-.n4 { bottom: 20px; right: 13px; background: #ffc0c7; }
-
-@media (max-width: 1250px) {
-    .sidebar {
-        width: 235px;
-    }
-
-    .main {
-        margin-left: 235px;
-        width: calc(100% - 235px);
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-
-    .dashboard-grid {
-        grid-template-columns: minmax(0, 1.75fr) minmax(315px, 1fr);
-    }
-
-    .features {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 950px) {
-    .sidebar {
-        width: 210px;
-    }
-
-    .main {
-        margin-left: 210px;
-        width: calc(100% - 210px);
-    }
-
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .dashboard-side {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .features {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-/* =========================================
-   COMPREHENSIVE MOBILE RESPONSIVE STYLES
-   (Dashboard, Workspace, Modals & Navigation)
-========================================= */
-
-@media (max-width: 768px) {
-    html, body {
-        overflow-x: hidden;
-        max-width: 100vw;
-    }
-
-    /* Fixed top navigation bar */
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        height: 56px;
-        min-height: 56px;
-        padding: 0 14px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-direction: row;
-        z-index: 9999;
-        background: #0d1b31;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        overflow: visible;
-    }
-
-    .mobile-menu-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: static;
-        width: 38px;
-        height: 38px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
-        font-size: 20px;
-        border: none;
-        cursor: pointer;
-        z-index: 10002;
-        transition: 0.15s ease;
-    }
-
-    .mobile-menu-btn:hover,
-    .mobile-menu-btn:active {
-        background: rgba(255, 255, 255, 0.18);
-    }
-
-    .brand,
-    .sidebar .brand {
-        position: static;
-        margin: 0;
-        height: auto;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        text-align: left;
-        gap: 8px;
-    }
-
-    .logo-mark {
-        width: 28px;
-        height: 26px;
-        margin: 0 !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .logo-mark svg {
-        width: 28px !important;
-        height: 24px !important;
-    }
-
-    .brand-text h2,
-    .brand h2 {
-        font-size: 15.5px;
-        line-height: 1.1;
-        margin: 0;
-        color: #ffffff;
-    }
-
-    .brand-text p,
-    .brand p {
-        font-size: 8px;
-        margin: 1px 0 0 0;
-        color: #9cb2d2;
-        white-space: nowrap;
-    }
-
-    /* Hidden sidebar items on mobile */
-    .sidebar-nav,
-    .sidebar nav,
-    .sidebar-card,
-    .student-profile {
-        display: none;
-    }
-
-    /* Open mobile slide-out drawer */
-    .sidebar.menu-open .sidebar-nav,
-    .sidebar.menu-open nav {
-        position: fixed;
-        top: 56px;
-        left: 0;
-        width: 260px;
-        max-width: 82vw;
-        height: calc(100vh - 56px);
-        padding: 16px 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        overflow-y: auto;
-        background: #091526;
-        box-shadow: 8px 0 28px rgba(0,0,0,0.5);
-        z-index: 10001;
-        animation: mobileMenuSlide 0.22s ease-out;
-    }
-
-    @keyframes mobileMenuSlide {
-        from { transform: translateX(-100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-
-    .sidebar.menu-open .nav-item,
-    .sidebar.menu-open nav button {
-        min-height: 42px;
-        width: 100%;
-        padding: 10px 14px;
-        gap: 12px;
-        border-radius: 9px;
-        font-size: 13px;
-        color: #cbd5e1;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        background: transparent;
-        border: none;
-        text-align: left;
-        cursor: pointer;
-    }
-
-    .sidebar.menu-open .nav-item:hover,
-    .sidebar.menu-open nav button:hover,
-    .sidebar.menu-open .nav-item.active,
-    .sidebar.menu-open nav button.active {
-        background: #ed2438;
-        color: #ffffff;
-    }
-
-    /* --- DASHBOARD MOBILE STYLES --- */
-    .main {
-        width: 100%;
-        margin-left: 0;
-        padding: 68px 12px 24px;
-    }
-
-    .topbar {
-        margin-bottom: 12px;
-        gap: 8px;
-        display: flex;
-        align-items: center;
-    }
-
-    .search-box {
-        flex: 1;
-        height: 42px;
-        padding: 0 12px;
-        border-radius: 10px;
-        background: #fff;
-    }
-
-    .search-box input {
-        font-size: 13px;
-    }
-
-    .top-actions {
-        display: none;
-    }
-
-    .hero {
-        min-height: auto;
-        padding: 16px 14px;
-        margin-bottom: 12px;
-        border-radius: 14px;
-    }
-
-    .hero h1 {
-        font-size: 20px;
-        letter-spacing: -0.3px;
-        margin-bottom: 4px;
-    }
-
-    .hero p {
-        font-size: 12px;
-        line-height: 1.5;
-    }
-
-    .quick-actions {
-        grid-template-columns: 1fr;
-        gap: 8px;
-        margin-bottom: 12px;
-    }
-
-    .quick-card {
-        min-height: 60px;
-        padding: 10px 14px;
-        gap: 12px;
-        border-radius: 12px;
-    }
-
-    .quick-icon {
-        width: 42px;
-        height: 42px;
-        font-size: 20px;
-        border-radius: 10px;
-    }
-
-    .quick-card strong {
-        font-size: 14px;
-    }
-
-    .quick-card p {
-        font-size: 11px;
-        margin-top: 1px;
-    }
-
-    .upload-card {
-        padding: 6px;
-        border-radius: 12px;
-    }
-
-    .dropzone {
-        min-height: 180px;
-        padding: 16px 12px;
-        border-radius: 10px;
-    }
-
-    .upload-cloud {
-        width: 44px;
-        height: 44px;
-        font-size: 32px;
-        margin-bottom: 4px;
-    }
-
-    .dropzone h2 {
-        font-size: 16px;
-    }
-
-    .dropzone p {
-        font-size: 12px;
-        margin-top: 3px;
-    }
-
-    .dropzone small {
-        font-size: 10.5px;
-        margin-top: 6px;
-    }
-
-    .choose-file {
-        min-width: 140px;
-        padding: 10px 18px;
-        font-size: 14px;
-        margin-top: 12px;
-        border-radius: 9px;
-    }
-
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-
-    .dashboard-side {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .learning-card {
-        min-height: auto;
-        padding: 14px;
-        border-radius: 12px;
-    }
-
-    .learning-illustration {
-        display: none;
-    }
-
-    .learning-copy h2 {
-        font-size: 18px;
-    }
-
-    .learning-copy ul {
-        margin-top: 8px;
-        gap: 4px;
-    }
-
-    .learning-copy li {
-        font-size: 11.5px;
-    }
-
-    .recent-card {
-        padding: 14px;
-        border-radius: 12px;
-    }
-
-    .recent-header h2 {
-        font-size: 16px;
-    }
-
-    .recent-list {
-        max-height: 225px;
-    }
-
-    .recent-item {
-        grid-template-columns: 36px minmax(0, 1fr) auto 24px;
-        gap: 8px;
-        padding: 10px 0;
-    }
-
-    .recent-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 10px;
-        border-radius: 8px;
-    }
-
-    .recent-info strong {
-        font-size: 12.5px;
-        max-width: 140px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: block;
-    }
-
-    .recent-info span {
-        font-size: 10px;
-    }
-
-    .status {
-        padding: 4px 6px;
-        font-size: 8.5px;
-    }
-
-    .features {
-        grid-template-columns: 1fr;
-        gap: 10px;
-        margin-top: 14px;
-    }
-
-    .feature-card {
-        min-height: auto;
-        padding: 14px;
-        border-radius: 12px;
-    }
-
-    .mini-notes,
-    .flashcard-preview,
-    .question-preview,
-    .mindmap-preview {
-        min-height: 90px;
-        margin-top: 8px;
-        padding: 10px;
-    }
-
-    /* --- WORKSPACE MOBILE STYLES (document.html) --- */
-    .workspace {
-        width: 100%;
-        margin-left: 0;
-        padding: 68px 10px 24px;
-    }
-
-    .workspace-topbar {
-        min-height: 48px;
-        padding: 8px 12px;
-        gap: 8px;
-        margin-bottom: 10px;
-        border-radius: 12px;
-    }
-
-    .back-button {
-        padding: 7px 10px;
-        font-size: 11px;
-        border-radius: 8px;
-        white-space: nowrap;
-    }
-
-    .document-title {
-        gap: 6px;
-        overflow: hidden;
-    }
-
-    .document-title strong {
-        font-size: 12px;
-        max-width: 130px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: block;
-    }
-
-    .document-title small {
-        font-size: 9px;
-    }
-
-    .workspace-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-
-    .document-panel {
-        min-height: auto;
-        max-height: 250px;
-        display: flex;
-        flex-direction: column;
-        border-radius: 12px;
-    }
-
-    .document-panel .panel-header {
-        padding: 10px 14px;
-        min-height: auto;
-    }
-
-    .document-panel .panel-header h2 {
-        font-size: 13px;
-    }
-
-    .document-content {
-        flex: 1;
-        max-height: 180px;
-        padding: 12px 14px;
-        font-size: 12px;
-        line-height: 1.6;
-    }
-
-    .ai-panel {
-        min-height: auto;
-        height: auto;
-        border-radius: 12px;
-    }
-
-    .ai-panel .panel-header {
-        padding: 10px 14px;
-        min-height: auto;
-    }
-
-    .ai-panel .panel-header h2 {
-        font-size: 14px;
-    }
-
-    .ai-tools {
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-        padding: 8px;
-    }
-
-    .ai-tool {
-        min-height: 52px;
-        padding: 6px 8px;
-        gap: 6px;
-        border-radius: 9px;
-    }
-
-    .ai-tool > span {
-        width: 26px;
-        height: 26px;
-        flex-basis: 26px;
-        font-size: 13px;
-    }
-
-    .ai-tool strong {
-        font-size: 11px;
-        line-height: 1.2;
-    }
-
-    .ai-tool small {
-        display: none;
-    }
-
-    .ai-output {
-        margin: 8px;
-        border-radius: 10px;
-    }
-
-    .ai-output-header {
-        padding: 10px 12px;
-    }
-
-    .ai-output-header h2 {
-        font-size: 13px;
-    }
-
-    #aiOutput {
-        padding: 12px;
-        max-height: 520px;
-        overflow-y: auto;
-    }
-
-    .ai-result-text {
-        font-size: 12.5px;
-        line-height: 1.65;
-    }
-
-    /* --- MODALS ON MOBILE --- */
-    .modal-overlay {
-        padding: 12px;
-    }
-
-    .modal-box {
-        width: 100%;
-        max-width: 480px;
-        max-height: 88vh;
-        display: flex;
-        flex-direction: column;
-        border-radius: 14px;
-    }
-
-    .modal-header {
-        padding: 14px 16px;
-    }
-
-    .modal-header h3 {
-        font-size: 15px;
-    }
-
-    .modal-body {
-        padding: 14px 16px;
-        overflow-y: auto;
-        flex: 1;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .modal-tabs button {
-        padding: 9px;
-        font-size: 12px;
-    }
-
-    .form-control {
-        font-size: 16px; /* Prevents auto zoom in iOS Safari */
-        padding: 11px 13px;
-    }
-}
-
-button:focus-visible,
-input:focus-visible,
-.dropzone:focus-visible {
-    outline: 2px solid #4d90fe;
-    outline-offset: 2px;
-}
-
+.n1 { top: 18px; left: 14px; background: #e7f2ff; color: #1665c1; border: 1px solid #bfe1ff; }
+.n2 { top: 18px; right: 14px; background: #fff8e8; color: #b46b00; border: 1px solid #ffdf9c; }
+.n3 { bottom: 18px; left: 14px; background: #eafbee; color: #15803d; border: 1px solid #bdeecb; }
+.n4 { bottom: 18px; right: 14px; background: #fff0f2; color: #c81e33; border: 1px solid #ffc0c7; }
 
 /* =========================================================
-   SMARTNOTES DOCUMENT WORKSPACE
-   Supports the existing document.html
+   SMARTNOTES DOCUMENT WORKSPACE (Desktop Base Styles)
 ========================================================= */
 
 .workspace {
@@ -1568,6 +985,10 @@ input:focus-visible,
     color: #263752;
     cursor: pointer;
     font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
 }
 
 .back-button:hover {
@@ -1852,8 +1273,9 @@ input:focus-visible,
     background: #aab8cc;
 }
 
-/* Existing document.html sidebar uses nav button directly */
-.sidebar nav button {
+/* Base navigation button styles */
+.sidebar nav button,
+.sidebar .sidebar-nav button {
     width: 100%;
     min-height: 52px;
     padding: 10px 17px;
@@ -1867,40 +1289,329 @@ input:focus-visible,
     text-align: left;
     font-size: 16px;
     transition: 0.2s ease;
+    border: none;
 }
 
-.sidebar nav button:hover {
+.sidebar nav button:hover,
+.sidebar .sidebar-nav button:hover {
     background: rgba(255,255,255,0.08);
 }
 
-.sidebar nav button.active {
+.sidebar nav button.active,
+.sidebar .sidebar-nav button.active {
     background: #ed2438;
+    color: #fff;
 }
 
-.sidebar .logo {
-    width: 50px;
-    height: 50px;
+/* =========================================
+   INTERACTIVE MIND MAP COMPONENT (Desktop & Mobile)
+========================================= */
+.mindmap-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mindmap-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.mindmap-zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mindmap-zoom-controls button {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
     display: grid;
     place-items: center;
-    border-radius: 13px;
+    transition: 0.15s ease;
+}
+
+.mindmap-zoom-controls button:hover {
+    background: #edf2f7;
+    border-color: #94a3b8;
+}
+
+.mindmap-zoom-level {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    min-width: 44px;
+    text-align: center;
+}
+
+.mindmap-view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #e2e8f0;
+    padding: 3px;
+    border-radius: 8px;
+}
+
+.mindmap-view-toggle button {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #475569;
+    background: transparent;
+    cursor: pointer;
+    border: none;
+    transition: 0.15s ease;
+}
+
+.mindmap-view-toggle button.active {
+    background: #fff;
+    color: #0f172a;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.mindmap-canvas-container {
+    width: 100%;
+    min-height: 420px;
+    max-height: 560px;
+    overflow: auto;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    position: relative;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+}
+
+.mindmap-svg-viewport {
+    min-width: 780px;
+    min-height: 480px;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.15s ease-out;
+}
+
+.mindmap-outline-container {
+    display: none;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.75;
+    color: #1e293b;
+    max-height: 500px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+
+/* =========================================
+   AUTH MODAL STYLING (Login & Sign Up)
+========================================= */
+.auth-modal-box {
+    max-width: 440px !important;
+}
+
+.modal-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-title-wrap .auth-icon {
+    font-size: 24px;
+}
+
+.modal-title-wrap h2 {
+    font-size: 16.5px;
+    color: #0f172a;
+    margin: 0;
+}
+
+.modal-title-wrap small {
+    font-size: 11px;
+    color: #64748b;
+    display: block;
+    margin-top: 2px;
+}
+
+.auth-tabs {
+    display: flex;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.auth-tab-btn {
+    flex: 1;
+    padding: 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #64748b;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+
+.auth-tab-btn.active {
+    color: #ed2438;
+    border-bottom-color: #ed2438;
+    background: #fff;
+}
+
+.auth-modal-body {
+    padding: 20px;
+}
+
+.label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.btn-toggle-pw {
+    background: transparent;
+    border: none;
+    font-size: 11.5px;
+    color: #475569;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+.btn-toggle-pw:hover {
+    color: #0f172a;
+}
+
+.form-options {
+    margin: 12px 0 18px;
+    font-size: 13px;
+    color: #475569;
+}
+
+.remember-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.btn-auth-primary {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
     background: #ed2438;
-    color: white;
-    font-size: 17px;
-    font-weight: 800;
+    color: #fff;
+    font-size: 14.5px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(237, 36, 56, 0.22);
+    transition: 0.15s ease;
 }
 
-.sidebar .brand {
-    flex-direction: row;
-    text-align: left;
-    justify-content: flex-start;
+.btn-auth-primary:hover {
+    background: #d61e32;
+    transform: translateY(-1px);
 }
 
-.sidebar .brand > div:last-child {
-    min-width: 0;
+.auth-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: #f8fafc;
+    border-top: 1px solid #edf0f5;
 }
 
-/* Mobile document workspace */
+.auth-modal-footer small {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.btn-auth-cancel {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: #fff;
+    color: #475569;
+    font-size: 12.5px;
+    font-weight: 600;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+}
+
+.btn-auth-cancel:hover {
+    background: #f1f5f9;
+}
+
+/* Accessibility */
+button:focus-visible,
+input:focus-visible,
+.dropzone:focus-visible {
+    outline: 2px solid #4d90fe;
+    outline-offset: 2px;
+}
+
+/* Mobile top header & sidebar backdrop elements (hidden on desktop) */
+.mobile-top-header {
+    display: none;
+}
+
+.sidebar-backdrop {
+    display: none;
+}
+
+.sidebar-header-mobile {
+    display: none;
+}
+
+/* =========================================================
+   CASCADING RESPONSIVE MEDIA QUERIES
+   (1250px -> 950px -> 768px -> 480px)
+========================================================= */
+
+/* --- TABLETS / SMALL LAPTOPS (<= 1250px) --- */
 @media (max-width: 1250px) {
+    .sidebar {
+        width: 235px;
+    }
+
+    .main {
+        margin-left: 235px;
+        width: calc(100% - 235px);
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: minmax(0, 1.75fr) minmax(315px, 1fr);
+    }
+
+    .features {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .workspace {
         margin-left: 235px;
         width: calc(100% - 235px);
@@ -1911,7 +1622,33 @@ input:focus-visible,
     }
 }
 
+/* --- SMALL TABLETS / PORTRAIT TABLETS (<= 950px) --- */
 @media (max-width: 950px) {
+    .sidebar {
+        width: 210px;
+    }
+
+    .main {
+        margin-left: 210px;
+        width: calc(100% - 210px);
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-side {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .features {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .workspace {
         margin-left: 210px;
         width: calc(100% - 210px);
@@ -1923,12 +1660,694 @@ input:focus-visible,
     }
 
     .document-panel {
-        min-height: 520px;
+        min-height: 480px;
     }
 
     .ai-panel {
-        height: 680px;
-        min-height: 680px;
+        height: auto;
+        min-height: 600px;
+    }
+}
+
+/* --- MOBILE DEVICES (<= 768px) --- */
+@media (max-width: 768px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+    }
+
+    body.sidebar-open {
+        overflow: hidden !important;
+        touch-action: none;
+    }
+
+    /* Fixed Mobile Header */
+    .mobile-top-header {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 56px;
+        background: #08162b;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0 14px;
+        z-index: 9990;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+    }
+
+    .mobile-menu-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        font-size: 20px;
+        display: grid;
+        place-items: center;
+        border: none;
+        cursor: pointer;
+    }
+
+    .mobile-brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        cursor: pointer;
+    }
+
+    .mobile-brand .logo-mark {
+        width: 28px !important;
+        height: 24px !important;
+        margin: 0 !important;
+    }
+
+    .mobile-brand .logo-mark svg {
+        width: 28px !important;
+        height: 24px !important;
+    }
+
+    .mobile-brand h2 {
+        font-size: 16px;
+        color: #fff;
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+    }
+
+    .mobile-user-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .mobile-user-btn .student-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #ed2438;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+        box-shadow: 0 2px 8px rgba(237, 36, 56, 0.3);
+    }
+
+    /* Dark Transparent Backdrop behind sidebar */
+    .sidebar-backdrop {
+        display: block !important;
+        position: fixed;
+        inset: 0;
+        background: rgba(4, 10, 24, 0.65);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        z-index: 9995;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+
+    .sidebar-backdrop.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Full-Height Mobile Drawer Navigation */
+    .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 280px !important;
+        max-width: 82vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        background: #08162b !important;
+        z-index: 9999 !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 16px 14px 20px !important;
+        box-shadow: 10px 0 32px rgba(0,0,0,0.55) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    .sidebar.menu-open {
+        transform: translateX(0) !important;
+    }
+
+    /* Drawer header inside sidebar */
+    .sidebar-header-mobile {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 14px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sidebar-header-mobile .brand-mobile {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sidebar-header-mobile .logo-mark {
+        width: 28px !important;
+        height: 24px !important;
+        margin: 0 !important;
+    }
+
+    .sidebar-header-mobile .logo-mark svg {
+        width: 28px !important;
+        height: 24px !important;
+    }
+
+    .sidebar-header-mobile strong {
+        font-size: 16px;
+        color: #fff;
+    }
+
+    .sidebar-close-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        font-size: 18px;
+        display: grid;
+        place-items: center;
+        border: none;
+        cursor: pointer;
+    }
+
+    .sidebar-close-btn:hover {
+        background: rgba(255, 255, 255, 0.18);
+    }
+
+    /* Hide desktop brand and desktop-only buttons inside mobile drawer */
+    .sidebar > .brand,
+    .sidebar > #mobileMenuBtn {
+        display: none !important;
+    }
+
+    .sidebar .sidebar-nav,
+    .sidebar nav {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        flex: 1 !important;
+    }
+
+    .sidebar .nav-item,
+    .sidebar nav button {
+        min-height: 44px !important;
+        padding: 10px 14px !important;
+        font-size: 13.5px !important;
+        border-radius: 9px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        color: #cbd5e1 !important;
+    }
+
+    .sidebar .nav-item:hover,
+    .sidebar nav button:hover,
+    .sidebar .nav-item.active,
+    .sidebar nav button.active {
+        background: #ed2438 !important;
+        color: #ffffff !important;
+    }
+
+    .sidebar-card {
+        display: none !important;
+    }
+
+    .student-profile {
+        margin-top: auto !important;
+        padding: 12px !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+
+    /* --- DASHBOARD MOBILE ALIGNMENT FIX (Bug 2) --- */
+    .main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        margin-left: 0 !important;
+        padding: 70px 14px 28px !important;
+        box-sizing: border-box !important;
+    }
+
+    .topbar {
+        width: 100% !important;
+        margin-bottom: 12px !important;
+    }
+
+    .top-actions {
+        display: none !important;
+    }
+
+    .search-box {
+        width: 100% !important;
+        height: 44px !important;
+        padding: 0 12px !important;
+        border-radius: 10px !important;
+    }
+
+    .dashboard-grid {
+        width: 100% !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        margin: 0 !important;
+    }
+
+    .hero {
+        width: 100% !important;
+        min-height: auto !important;
+        padding: 18px 16px !important;
+        margin-bottom: 12px !important;
+        border-radius: 14px !important;
+    }
+
+    .hero h1 {
+        font-size: 21px !important;
+        letter-spacing: -0.3px !important;
+        margin-bottom: 5px !important;
+    }
+
+    .hero p {
+        font-size: 12.5px !important;
+        line-height: 1.5 !important;
+    }
+
+    .quick-actions {
+        width: 100% !important;
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .quick-card {
+        min-height: 64px !important;
+        padding: 12px 14px !important;
+        gap: 12px !important;
+        border-radius: 12px !important;
+    }
+
+    .quick-icon {
+        width: 44px !important;
+        height: 44px !important;
+        font-size: 21px !important;
+        border-radius: 10px !important;
+    }
+
+    .quick-card strong {
+        font-size: 14px !important;
+    }
+
+    .quick-card p {
+        font-size: 11.5px !important;
+        margin-top: 2px !important;
+    }
+
+    .upload-card {
+        width: 100% !important;
+        padding: 8px !important;
+        border-radius: 12px !important;
+    }
+
+    .dropzone {
+        width: 100% !important;
+        min-height: 185px !important;
+        padding: 18px 12px !important;
+        border-radius: 10px !important;
+    }
+
+    .upload-cloud {
+        width: 44px !important;
+        height: 44px !important;
+        font-size: 32px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .dropzone h2 {
+        font-size: 16px !important;
+    }
+
+    .dropzone p {
+        font-size: 12.5px !important;
+        margin-top: 3px !important;
+    }
+
+    .dropzone small {
+        font-size: 10.5px !important;
+        margin-top: 6px !important;
+    }
+
+    .choose-file {
+        min-width: 145px !important;
+        padding: 11px 20px !important;
+        font-size: 14px !important;
+        margin-top: 12px !important;
+        border-radius: 9px !important;
+    }
+
+    .dashboard-side {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+    }
+
+    .learning-card {
+        width: 100% !important;
+        min-height: auto !important;
+        padding: 16px !important;
+        border-radius: 12px !important;
+    }
+
+    .learning-illustration {
+        display: none !important;
+    }
+
+    .learning-copy h2 {
+        font-size: 18px !important;
+    }
+
+    .learning-copy ul {
+        margin-top: 10px !important;
+        gap: 5px !important;
+    }
+
+    .learning-copy li {
+        font-size: 12px !important;
+    }
+
+    .recent-card {
+        width: 100% !important;
+        padding: 16px !important;
+        border-radius: 12px !important;
+    }
+
+    .recent-header h2 {
+        font-size: 16px !important;
+    }
+
+    .recent-list {
+        max-height: 225px !important;
+    }
+
+    .recent-item {
+        grid-template-columns: 38px minmax(0, 1fr) auto 24px !important;
+        gap: 8px !important;
+        padding: 11px 0 !important;
+    }
+
+    .recent-icon {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 10px !important;
+        border-radius: 8px !important;
+    }
+
+    .recent-info strong {
+        font-size: 13px !important;
+        max-width: 145px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: block !important;
+    }
+
+    .recent-info span {
+        font-size: 10.5px !important;
+    }
+
+    .status {
+        padding: 4px 6px !important;
+        font-size: 8.5px !important;
+    }
+
+    .features {
+        width: 100% !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        margin-top: 14px !important;
+    }
+
+    .feature-card {
+        width: 100% !important;
+        min-height: auto !important;
+        padding: 16px !important;
+        border-radius: 12px !important;
+    }
+
+    .mini-notes,
+    .flashcard-preview,
+    .question-preview,
+    .mindmap-preview {
+        min-height: 95px !important;
+        margin-top: 10px !important;
+        padding: 12px !important;
+    }
+
+    /* --- WORKSPACE MOBILE ALIGNMENT FIX (Bug 2) --- */
+    .workspace {
+        width: 100% !important;
+        max-width: 100vw !important;
+        margin-left: 0 !important;
+        padding: 70px 12px 28px !important;
+        box-sizing: border-box !important;
+    }
+
+    .workspace-topbar {
+        width: 100% !important;
+        min-height: 48px !important;
+        padding: 8px 12px !important;
+        gap: 8px !important;
+        margin-bottom: 12px !important;
+        border-radius: 12px !important;
+    }
+
+    .back-button {
+        padding: 7px 10px !important;
+        font-size: 11.5px !important;
+        border-radius: 8px !important;
+        white-space: nowrap !important;
+    }
+
+    .document-title {
+        gap: 6px !important;
+        overflow: hidden !important;
+    }
+
+    .document-title strong {
+        font-size: 12.5px !important;
+        max-width: 135px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: block !important;
+    }
+
+    .document-title small {
+        font-size: 9.5px !important;
+    }
+
+    .workspace-grid {
+        width: 100% !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        margin: 0 !important;
+    }
+
+    .document-panel {
+        width: 100% !important;
+        min-height: auto !important;
+        max-height: 250px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        border-radius: 12px !important;
+    }
+
+    .document-panel .panel-header {
+        padding: 10px 14px !important;
+        min-height: auto !important;
+    }
+
+    .document-panel .panel-header h2 {
+        font-size: 13.5px !important;
+    }
+
+    .document-content {
+        width: 100% !important;
+        flex: 1 !important;
+        max-height: 180px !important;
+        padding: 12px 14px !important;
+        font-size: 12px !important;
+        line-height: 1.6 !important;
+    }
+
+    .ai-panel {
+        width: 100% !important;
+        min-height: 480px !important;
+        height: auto !important;
+        border-radius: 12px !important;
+    }
+
+    .ai-panel .panel-header {
+        padding: 10px 14px !important;
+        min-height: auto !important;
+    }
+
+    .ai-panel .panel-header h2 {
+        font-size: 14.5px !important;
+    }
+
+    .ai-tools {
+        width: 100% !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 7px !important;
+        padding: 9px !important;
+    }
+
+    .ai-tool {
+        min-height: 54px !important;
+        padding: 7px 9px !important;
+        gap: 7px !important;
+        border-radius: 9px !important;
+    }
+
+    .ai-tool > span {
+        width: 28px !important;
+        height: 28px !important;
+        flex-basis: 28px !important;
+        font-size: 14px !important;
+    }
+
+    .ai-tool strong {
+        font-size: 11.5px !important;
+        line-height: 1.2 !important;
+    }
+
+    .ai-tool small {
+        display: none !important;
+    }
+
+    .ai-output {
+        width: calc(100% - 18px) !important;
+        margin: 9px !important;
+        border-radius: 10px !important;
+    }
+
+    .ai-output-header {
+        padding: 10px 12px !important;
+    }
+
+    .ai-output-header h2 {
+        font-size: 13.5px !important;
+    }
+
+    #aiOutput {
+        padding: 12px !important;
+        max-height: 520px !important;
+        overflow-y: auto !important;
+    }
+
+    .ai-result-text {
+        font-size: 12.5px !important;
+        line-height: 1.65 !important;
+    }
+
+    /* --- MODALS ON MOBILE --- */
+    .modal-overlay {
+        padding: 12px !important;
+    }
+
+    .modal-box {
+        width: 100% !important;
+        max-width: 480px !important;
+        max-height: 88vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        border-radius: 14px !important;
+    }
+
+    .modal-header {
+        padding: 14px 16px !important;
+    }
+
+    .modal-body {
+        padding: 14px 16px !important;
+        overflow-y: auto !important;
+        flex: 1 !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .form-control {
+        font-size: 16px !important; /* Prevents auto zoom in iOS */
+        padding: 11px 13px !important;
+    }
+
+    .mindmap-canvas-container {
+        min-height: 360px !important;
+        max-height: 480px !important;
+        padding: 10px !important;
+    }
+}
+
+/* --- SMALL MOBILES (<= 480px) --- */
+@media (max-width: 480px) {
+    .main,
+    .workspace {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .mobile-brand h2 {
+        font-size: 15px !important;
+    }
+
+    .hero h1 {
+        font-size: 19px !important;
+    }
+
+    .quick-card {
+        padding: 10px 12px !important;
+    }
+
+    .document-title strong {
+        max-width: 115px !important;
+    }
+
+    .ai-tools {
+        gap: 6px !important;
+        padding: 7px !important;
+    }
+
+    .ai-tool {
+        min-height: 50px !important;
+        padding: 6px 7px !important;
+    }
+
+    .ai-tool strong {
+        font-size: 11px !important;
+    }
+
+    .mindmap-toolbar {
+        padding: 8px 10px !important;
     }
 }
 
