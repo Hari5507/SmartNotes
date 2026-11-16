@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartNotes - AI Powered Lecture Notes</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
     <style>
 /* Modal overlay and boxes */
 .modal-overlay {
@@ -1627,10 +1627,31 @@ searchInput.addEventListener("input", function () {
 
 const mobileMenuBtn = document.getElementById("mobileMenuBtn");
 const sidebar = document.getElementById("sidebar");
-mobileMenuBtn.addEventListener("click", function () {
-    sidebar.classList.toggle("menu-open");
-    mobileMenuBtn.textContent = sidebar.classList.contains("menu-open") ? "✕" : "☰";
-});
+if (mobileMenuBtn && sidebar) {
+    mobileMenuBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        sidebar.classList.toggle("menu-open");
+        mobileMenuBtn.textContent = sidebar.classList.contains("menu-open") ? "✕" : "☰";
+    });
+
+    document.addEventListener("click", function(e) {
+        if (sidebar.classList.contains("menu-open")) {
+            if (!sidebar.contains(e.target)) {
+                sidebar.classList.remove("menu-open");
+                mobileMenuBtn.textContent = "☰";
+            }
+        }
+    });
+
+    document.querySelectorAll(".sidebar-nav button").forEach(btn => {
+        btn.addEventListener("click", () => {
+            if (sidebar.classList.contains("menu-open")) {
+                sidebar.classList.remove("menu-open");
+                mobileMenuBtn.textContent = "☰";
+            }
+        });
+    });
+}
 
 // Modal outside clicks
 document.getElementById("audioModal").addEventListener("click", function(e) {

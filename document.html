@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartNotes - Document Workspace</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
     <style>
 /* Source badges */
 .source-badge {
@@ -210,14 +210,14 @@
             </div>
         </div>
 
-        <nav>
-            <button onclick="goDashboard()">⌂ <span>Dashboard</span></button>
-            <button class="active" id="currentDocBtn">📄 <span>Current Document</span></button>
-            <button onclick="goDashboard()">▣ <span>My Notes</span></button>
-            <button onclick="runTool('flashcards')">▤ <span>Flashcards</span></button>
-            <button onclick="runTool('practice_questions')">❓ <span>Practice Questions</span></button>
-            <button onclick="runTool('mindmap')">◎ <span>Mind Maps</span></button>
-            <button onclick="goDashboard()">◷ <span>History</span></button>
+        <nav class="sidebar-nav">
+            <button class="nav-item" onclick="goDashboard()">⌂ <span>Dashboard</span></button>
+            <button class="nav-item active" id="currentDocBtn">📄 <span>Current Document</span></button>
+            <button class="nav-item" onclick="goDashboard()">▣ <span>My Notes</span></button>
+            <button class="nav-item" onclick="runTool('flashcards')">▤ <span>Flashcards</span></button>
+            <button class="nav-item" onclick="runTool('practice_questions')">❓ <span>Practice Questions</span></button>
+            <button class="nav-item" onclick="runTool('mindmap')">◎ <span>Mind Maps</span></button>
+            <button class="nav-item" onclick="goDashboard()">◷ <span>History</span></button>
         </nav>
 
         <div class="sidebar-card">
@@ -646,8 +646,28 @@
     const mobileMenuBtn = document.getElementById("mobileMenuBtn");
     const sidebar = document.getElementById("sidebar");
     if (mobileMenuBtn && sidebar) {
-        mobileMenuBtn.addEventListener("click", function () {
+        mobileMenuBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
             sidebar.classList.toggle("menu-open");
+            mobileMenuBtn.textContent = sidebar.classList.contains("menu-open") ? "✕" : "☰";
+        });
+
+        document.addEventListener("click", function(e) {
+            if (sidebar.classList.contains("menu-open")) {
+                if (!sidebar.contains(e.target)) {
+                    sidebar.classList.remove("menu-open");
+                    mobileMenuBtn.textContent = "☰";
+                }
+            }
+        });
+
+        document.querySelectorAll(".sidebar-nav button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                if (sidebar.classList.contains("menu-open")) {
+                    sidebar.classList.remove("menu-open");
+                    mobileMenuBtn.textContent = "☰";
+                }
+            });
         });
     }
     </script>
