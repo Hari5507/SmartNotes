@@ -1,0 +1,23 @@
+# Environment variables (NEVER COMMIT API KEYS)
+.env
+.env.local
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Temporary uploads
+uploads/*
+!uploads/.gitkeep
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/

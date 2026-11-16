@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartNotes - AI Powered Lecture Notes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<aside class="sidebar" id="sidebar">
+
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
+
+    <div class="brand">
+        <div class="logo-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="brand-text">
+            <h2>SmartNotes</h2>
+            <p>AI Powered Lecture Notes</p>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <button class="nav-item active" onclick="goDashboard()">⌂ <span>Home</span></button>
+        <button class="nav-item" onclick="showMessage('Upload a document first')">♧ <span>Upload</span></button>
+        <button class="nav-item" onclick="showMessage('My Notes will be available soon')">▤ <span>My Notes</span></button>
+        <button class="nav-item" onclick="showMessage('Flashcards will be available soon')">▣ <span>Flashcards</span></button>
+        <button class="nav-item" onclick="showMessage('Practice Questions will be available soon')">? <span>Practice Questions</span></button>
+        <button class="nav-item" onclick="showMessage('Mind Maps will be available soon')">⌘ <span>Mind Maps</span></button>
+        <button class="nav-item" onclick="showMessage('History will be available soon')">◷ <span>History</span></button>
+    </nav>
+
+    <div class="sidebar-card">
+        <div class="sidebar-card-icon">◆</div>
+        <strong>Learn Smarter<br>Not Harder</strong>
+        <p>Turn your lectures into clear, organized notes with AI.</p>
+    </div>
+
+    <div class="student-profile">
+        <div class="student-avatar">S</div>
+        <div>
+            <strong>Student</strong>
+            <span>student@snist.ac.in</span>
+        </div>
+    </div>
+</aside>
+
+
+<main class="main">
+
+    <header class="topbar">
+        <div class="search-box">
+            <span>⌕</span>
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search your notes, topics, or uploads..."
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="top-actions">
+            <button class="notification-btn" aria-label="Notifications">
+                ♧
+                <i></i>
+            </button>
+            <div class="profile">S</div>
+        </div>
+    </header>
+
+
+    <div class="dashboard-grid">
+
+        <section class="dashboard-main">
+
+            <section class="hero">
+                <div>
+                    <h1>Welcome to <span>SmartNotes</span> 👋</h1>
+                    <p>Upload your lectures, recordings or PDFs and get clear, organized study notes with AI.</p>
+                </div>
+            </section>
+
+
+            <section class="quick-actions">
+                <button class="quick-card" onclick="fileInput.click()">
+                    <div class="quick-icon red">▤</div>
+                    <div>
+                        <strong>Upload PDF</strong>
+                        <p>Upload lecture slides<br>or documents</p>
+                    </div>
+                </button>
+
+                <button class="quick-card" onclick="showMessage('Audio / Recording support coming soon')">
+                    <div class="quick-icon purple">◉</div>
+                    <div>
+                        <strong>Audio / Recording</strong>
+                        <p>Upload lecture audio<br>or recording</p>
+                    </div>
+                </button>
+
+                <button class="quick-card" onclick="showMessage('Paste Link support coming soon')">
+                    <div class="quick-icon blue">↗</div>
+                    <div>
+                        <strong>Paste Link</strong>
+                        <p>YouTube or online<br>lecture link</p>
+                    </div>
+                </button>
+            </section>
+
+
+            <section class="upload-card">
+                <div
+                    class="dropzone"
+                    id="dropzone"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Upload PDF"
+                >
+                    <div class="upload-cloud">⇧</div>
+                    <h2>Drag and drop your file here</h2>
+                    <p>or click to upload</p>
+                    <small>Supports: PDF, MP3, WAV, M4A (Max 500MB)</small>
+
+                    <input
+                        type="file"
+                        id="fileInput"
+                        accept=".pdf,application/pdf"
+                        hidden
+                    >
+
+                    <button type="button" id="chooseFile" class="choose-file">
+                        ▢ &nbsp; Choose File
+                    </button>
+                </div>
+
+                <div class="file-status" id="fileStatus"></div>
+            </section>
+
+        </section>
+
+
+        <aside class="dashboard-side">
+
+            <section class="learning-card">
+                <div class="learning-copy">
+                    <h2>From Lectures<br>to <span>Learning</span></h2>
+                    <p class="flow">Upload <b>→</b> AI Processes <b>→</b> Get Notes</p>
+
+                    <ul>
+                        <li><span>✓</span> Summaries</li>
+                        <li><span>✓</span> Key Points</li>
+                        <li><span>✓</span> Flashcards</li>
+                        <li><span>✓</span> Practice Questions</li>
+                        <li><span>✓</span> Mind Maps</li>
+                    </ul>
+                </div>
+
+                <div class="learning-illustration">
+                    <div class="play-button">▶</div>
+                    <div class="person-head"></div>
+                    <div class="person-body"></div>
+                    <div class="laptop"></div>
+                </div>
+            </section>
+
+
+            <section class="recent-card">
+                <div class="recent-header">
+                    <h2>Recent Uploads</h2>
+                    <button onclick="showMessage('Recent uploads view coming soon')">View all →</button>
+                </div>
+
+                <div class="recent-list" id="recentList">
+                    <div class="recent-item">
+                        <div class="recent-icon pdf">PDF</div>
+                        <div class="recent-info">
+                            <strong>DBMS_Unit1.pdf</strong>
+                            <span>PDF • 12 pages • 5 min ago</span>
+                        </div>
+                        <b class="status">Completed</b>
+                        <button class="dots">⋮</button>
+                    </div>
+
+                    <div class="recent-item">
+                        <div class="recent-icon audio">◉</div>
+                        <div class="recent-info">
+                            <strong>OS_Lecture1.mp3</strong>
+                            <span>Audio • 45 min • 1 hour ago</span>
+                        </div>
+                        <b class="status">Completed</b>
+                        <button class="dots">⋮</button>
+                    </div>
+
+                    <div class="recent-item">
+                        <div class="recent-icon video">▶</div>
+                        <div class="recent-info">
+                            <strong>CN_Lecture.mp4</strong>
+                            <span>Video • 32 min • 3 hours ago</span>
+                        </div>
+                        <b class="status">Completed</b>
+                        <button class="dots">⋮</button>
+                    </div>
+                </div>
+            </section>
+
+        </aside>
+
+    </div>
+
+
+    <section class="features" id="features">
+
+        <article class="feature-card">
+            <div class="feature-heading">
+                <div class="feature-icon purple">▤</div>
+                <div>
+                    <h3>AI Notes</h3>
+                    <p>Get structured and organized notes</p>
+                </div>
+            </div>
+            <div class="mini-notes">
+                <strong>Lecture Notes</strong>
+                <span class="mini-line long"></span>
+                <span class="mini-line"></span>
+                <span class="mini-line short"></span>
+                <span class="mini-line"></span>
+            </div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-heading">
+                <div class="feature-icon yellow">★</div>
+                <div>
+                    <h3>Key Points</h3>
+                    <p>Important points extracted by AI</p>
+                </div>
+            </div>
+            <div class="mini-notes bullets">
+                <strong>Key Points</strong>
+                <span class="mini-line long"></span>
+                <span class="mini-line"></span>
+                <span class="mini-line long"></span>
+                <span class="mini-line"></span>
+            </div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-heading">
+                <div class="feature-icon green">▣</div>
+                <div>
+                    <h3>Flashcards</h3>
+                    <p>Generate flashcards for quick revision</p>
+                </div>
+            </div>
+            <div class="flashcard-preview">
+                <span>What is Normalization<br>in DBMS?</span>
+                <b>1 / 10</b>
+            </div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-heading">
+                <div class="feature-icon violet">?</div>
+                <div>
+                    <h3>Practice Questions</h3>
+                    <p>Get practice questions from your content</p>
+                </div>
+            </div>
+            <div class="question-preview">
+                <strong>Q. What is a primary key?</strong>
+                <span>○ ━━━━━━━━━</span>
+                <span>○ ━━━━━━━</span>
+                <span>○ ━━━━━━━━━</span>
+            </div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-heading">
+                <div class="feature-icon orange">⌘</div>
+                <div>
+                    <h3>Mind Maps</h3>
+                    <p>Visual mind maps for better understanding</p>
+                </div>
+            </div>
+            <div class="mindmap-preview">
+                <div class="mind-center">DBMS</div>
+                <i class="node n1"></i><i class="node n2"></i>
+                <i class="node n3"></i><i class="node n4"></i>
+            </div>
+        </article>
+
+    </section>
+
+</main>
+
+
+<script>
+function goDashboard() {
+    window.location.href = "/";
+}
+
+function showMessage(message) {
+    const status = document.getElementById("fileStatus");
+    status.textContent = message;
+    status.style.color = "#3157a5";
+
+    clearTimeout(window.messageTimer);
+    window.messageTimer = setTimeout(() => {
+        status.textContent = "";
+    }, 3500);
+}
+
+const fileInput = document.getElementById("fileInput");
+const chooseFile = document.getElementById("chooseFile");
+const dropzone = document.getElementById("dropzone");
+const fileStatus = document.getElementById("fileStatus");
+
+chooseFile.addEventListener("click", function (event) {
+    event.stopPropagation();
+    fileInput.click();
+});
+
+dropzone.addEventListener("click", function () {
+    fileInput.click();
+});
+
+dropzone.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        fileInput.click();
+    }
+});
+
+fileInput.addEventListener("change", function () {
+    if (fileInput.files.length > 0) {
+        uploadPDF(fileInput.files[0]);
+    }
+});
+
+dropzone.addEventListener("dragover", function (event) {
+    event.preventDefault();
+    dropzone.classList.add("dragging");
+});
+
+dropzone.addEventListener("dragleave", function () {
+    dropzone.classList.remove("dragging");
+});
+
+dropzone.addEventListener("drop", function (event) {
+    event.preventDefault();
+    dropzone.classList.remove("dragging");
+
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+        uploadPDF(files[0]);
+    }
+});
+
+async function uploadPDF(file) {
+    const isPDF =
+        file.type === "application/pdf" ||
+        file.name.toLowerCase().endsWith(".pdf");
+
+    if (!isPDF) {
+        fileStatus.textContent = "❌ Please select a PDF file.";
+        fileStatus.style.color = "#d93025";
+        return;
+    }
+
+    fileStatus.textContent = "⏳ Uploading and extracting your PDF...";
+    fileStatus.style.color = "#3157a5";
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const response = await fetch("/upload", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Upload failed.");
+        }
+
+        sessionStorage.setItem("smartnotes_text", data.text || "");
+        sessionStorage.setItem("smartnotes_filename", data.filename || file.name);
+        sessionStorage.setItem("smartnotes_pages", data.pages || 0);
+
+        fileStatus.textContent =
+            "✅ PDF uploaded successfully! Opening document...";
+        fileStatus.style.color = "#188038";
+
+        setTimeout(function () {
+            window.location.href = "/document.html";
+        }, 500);
+
+    } catch (error) {
+        console.error(error);
+        fileStatus.textContent = "❌ " + error.message;
+        fileStatus.style.color = "#d93025";
+    }
+}
+
+
+/* MOBILE MENU */
+const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+const sidebar = document.getElementById("sidebar");
+
+mobileMenuBtn.addEventListener("click", function () {
+    sidebar.classList.toggle("menu-open");
+
+    if (sidebar.classList.contains("menu-open")) {
+        mobileMenuBtn.textContent = "✕";
+        mobileMenuBtn.setAttribute("aria-label", "Close menu");
+    } else {
+        mobileMenuBtn.textContent = "☰";
+        mobileMenuBtn.setAttribute("aria-label", "Open menu");
+    }
+});
+
+
+/* SEARCH */
+const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener("input", function () {
+    const searchText = searchInput.value.toLowerCase().trim();
+
+    document.querySelectorAll(".feature-card").forEach(function (card) {
+        const text = card.textContent.toLowerCase();
+        card.style.display =
+            !searchText || text.includes(searchText) ? "" : "none";
+    });
+
+    document.querySelectorAll(".recent-item").forEach(function (item) {
+        const text = item.textContent.toLowerCase();
+        item.style.display =
+            !searchText || text.includes(searchText) ? "" : "none";
+    });
+});
+</script>
+
+</body>
+</html>
