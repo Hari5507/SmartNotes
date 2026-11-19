@@ -1,493 +1,637 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartNotes - Document Workspace</title>
-    <link rel="stylesheet" href="style.css?v=7">
+    <title>SmartNotes – Document Workspace</title>
+    <!-- Prevent flash of unstyled theme by applying theme synchronously in head -->
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('smartnotes_theme') || 
+                    (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch(e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="style.css?v=10">
     <style>
-/* Source badges */
-.source-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-}
-.source-badge.pdf    { background: #edf3ff; color: #3157a5; }
-.source-badge.audio  { background: #fdf0ff; color: #7c3aed; }
-.source-badge.youtube { background: #fff0f0; color: #c0152a; }
+        /* Document workspace specific overrides */
+        .workspace-main-container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 16px 60px 16px;
+        }
 
-/* Pre-generated notes banner */
-.auto-notes-banner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    background: #edfdf5;
-    border: 1px solid #a7f0c4;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #188038;
-    margin-bottom: 14px;
-}
+        /* Reading stats and badges */
+        .word-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-subtle);
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
 
-/* AI Tool button active state */
-.ai-tool.active-tool {
-    border-color: #ed2438 !important;
-    background: #fff5f5 !important;
-    box-shadow: 0 4px 14px rgba(237, 36, 56, 0.12);
-}
-.ai-tool.active-tool strong {
-    color: #ed2438 !important;
-}
+        /* Auto-notes banner */
+        .auto-notes-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #059669;
+            margin-bottom: 16px;
+        }
 
-/* Action toolbar in output header */
-.output-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.btn-action {
-    padding: 6px 12px;
-    border-radius: 8px;
-    background: #f1f4f9;
-    color: #334;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1px solid #dce2ec;
-    transition: 0.15s ease;
-}
-.btn-action:hover {
-    background: #e3e8f2;
-}
+        [data-theme="dark"] .auto-notes-banner {
+            color: #34d399;
+        }
 
-/* Interactive Flashcard UI */
-.flashcards-container {
-    padding: 10px 0;
-}
-.flashcard-card {
-    min-height: 200px;
-    background: linear-gradient(135deg, #ffffff, #f9fbff);
-    border: 2px solid #e1e8f5;
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 0 8px 24px rgba(30, 50, 90, 0.06);
-    cursor: pointer;
-    transition: transform 0.2s, border-color 0.2s;
-    user-select: none;
-}
-.flashcard-card:hover {
-    border-color: #3157a5;
-    transform: translateY(-2px);
-}
-.flashcard-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: #7b8ba5;
-    font-weight: 600;
-}
-.flashcard-body {
-    padding: 20px 0;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #17233d;
-    text-align: center;
-}
-.flashcard-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    color: #8fa0bc;
-}
-.flashcard-nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 16px;
-    margin-top: 16px;
-}
-.flashcard-nav button {
-    padding: 8px 18px;
-    border-radius: 10px;
-    background: #17233d;
-    color: #fff;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-}
-.flashcard-nav button:disabled {
-    opacity: 0.4;
-    cursor: default;
-}
+        /* Mind Map Visualizer */
+        .mindmap-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
 
-/* Practice Questions UI */
-.quiz-item {
-    background: #fff;
-    border: 1px solid #e2e8f2;
-    border-radius: 12px;
-    padding: 16px 18px;
-    margin-bottom: 14px;
-}
-.quiz-question {
-    font-size: 14px;
-    font-weight: 700;
-    color: #17233d;
-    margin-bottom: 10px;
-}
-.quiz-toggle {
-    margin-top: 10px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    background: #edf3ff;
-    color: #3157a5;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-}
-.quiz-answer {
-    margin-top: 10px;
-    padding: 10px 14px;
-    background: #f8fafc;
-    border-left: 3px solid #188038;
-    border-radius: 6px;
-    font-size: 13px;
-    line-height: 1.5;
-    color: #2b3a4a;
-    display: none;
-}
+        .mindmap-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
 
-/* Mind Map Tree visual */
-.mindmap-node-tree {
-    background: #f8fafd;
-    border: 1px solid #e1e7f0;
-    border-radius: 12px;
-    padding: 18px;
-    font-family: monospace;
-    font-size: 13px;
-    line-height: 1.8;
-    color: #172b4d;
-    white-space: pre-wrap;
-    overflow-x: auto;
-}
+        .mindmap-zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mindmap-zoom-controls button {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: all 0.15s ease;
+        }
+
+        .mindmap-zoom-controls button:hover {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .mindmap-zoom-level {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            min-width: 44px;
+            text-align: center;
+        }
+
+        .mindmap-view-toggle {
+            display: flex;
+            gap: 6px;
+            background: var(--bg-card);
+            padding: 3px;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .mindmap-view-toggle button {
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: transparent;
+            border: none;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .mindmap-view-toggle button.active {
+            background: var(--text-primary);
+            color: var(--bg-main);
+        }
+
+        .mindmap-canvas-container {
+            width: 100%;
+            height: 480px;
+            overflow: auto;
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            background: var(--bg-card-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mindmap-svg-viewport {
+            width: 100%;
+            height: 100%;
+            min-width: 800px;
+            min-height: 460px;
+            transition: transform 0.2s ease-out;
+        }
+
+        .mindmap-outline-container {
+            display: none;
+            padding: 20px;
+            background: var(--bg-card-subtle);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
     </style>
 </head>
-
 <body>
 
-    <!-- MOBILE TOP HEADER (VISIBLE ONLY ON MOBILE <= 768px) -->
-    <header class="mobile-top-header">
-        <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Open menu">☰</button>
-        <div class="mobile-brand" onclick="goDashboard()">
-            <div class="logo-mark">
-                <svg width="28" height="24" viewBox="0 0 60 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 38C14 36 24 38 30 42C36 38 46 36 54 38V12C46 10 36 12 30 16C24 12 14 10 6 12V38Z" fill="#ED2438"/>
-                    <path d="M30 16V42" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M12 18C18 16 24 17 28 19" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M48 18C42 16 36 17 32 19" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M30 4L31.8 8.2L36 10L31.8 11.8L30 16L28.2 11.8L24 10L28.2 8.2L30 4Z" fill="#FFD700"/>
-                </svg>
-            </div>
-            <h2>SmartNotes</h2>
-        </div>
-        <button class="mobile-user-btn" onclick="logoutUser()" aria-label="Logout">
-            <div class="student-avatar" id="mobileAvatar">H</div>
-        </button>
-    </header>
-
-    <!-- BACKDROP OVERLAY FOR MOBILE SIDEBAR -->
-    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
-
-    <aside class="sidebar" id="sidebar">
-
-        <!-- MOBILE DRAWER CLOSE HEADER -->
-        <div class="sidebar-header-mobile">
-            <div class="brand-mobile">
-                <div class="logo-mark">
-                    <svg width="28" height="24" viewBox="0 0 60 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 38C14 36 24 38 30 42C36 38 46 36 54 38V12C46 10 36 12 30 16C24 12 14 10 6 12V38Z" fill="#ED2438"/>
-                        <path d="M30 16V42" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+    <!-- =========================================
+         FLOATING HORIZONTAL NAVBAR
+    ========================================= -->
+    <header class="navbar-wrapper">
+        <nav class="floating-navbar">
+            <!-- LEFT: Logo & Brand -->
+            <div class="nav-left" onclick="goDashboard()" role="button" tabindex="0">
+                <div class="nav-logo-icon">
+                    <svg width="34" height="28" viewBox="0 0 60 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 38C14 36 24 38 30 42C36 38 46 36 54 38V12C46 10 36 12 30 16C24 12 14 10 6 12V38Z" fill="#F3263D"/>
+                        <path d="M30 16V42" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M12 18C18 16 24 17 28 19" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M12 24C18 22 24 23 28 25" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M12 30C18 28 24 29 28 31" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M48 18C42 16 36 17 32 19" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M48 24C42 22 36 23 32 25" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M48 30C42 28 36 29 32 31" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
                         <path d="M30 4L31.8 8.2L36 10L31.8 11.8L30 16L28.2 11.8L24 10L28.2 8.2L30 4Z" fill="#FFD700"/>
                     </svg>
                 </div>
-                <strong>SmartNotes</strong>
+                <span class="nav-brand-title">SmartNotes</span>
+                <span class="nav-badge">AI 2.0</span>
             </div>
-            <button class="sidebar-close-btn" onclick="closeMobileSidebar()" aria-label="Close menu">✕</button>
-        </div>
 
-        <!-- SMARTNOTES BRAND LOGO (DESKTOP) -->
-        <div class="brand">
-            <div class="logo-mark" aria-hidden="true">
-                <svg width="56" height="48" viewBox="0 0 60 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 38C14 36 24 38 30 42C36 38 46 36 54 38V12C46 10 36 12 30 16C24 12 14 10 6 12V38Z" fill="#ED2438"/>
-                    <path d="M30 16V42" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M12 18C18 16 24 17 28 19" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M12 24C18 22 24 23 28 25" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M12 30C18 28 24 29 28 31" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M48 18C42 16 36 17 32 19" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M48 24C42 22 36 23 32 25" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M48 30C42 28 36 29 32 31" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M30 4L31.8 8.2L36 10L31.8 11.8L30 16L28.2 11.8L24 10L28.2 8.2L30 4Z" fill="#FFD700"/>
-                </svg>
+            <!-- CENTER: Capsule Navigation Pills -->
+            <div class="nav-center">
+                <button class="nav-pill" onclick="goDashboard()">← Dashboard</button>
+                <button class="nav-pill active">Current Document</button>
+                <button class="nav-pill" onclick="openMyNotesModal()">My Notes</button>
+                <button class="nav-pill" onclick="runTool('flashcards')">Flashcards</button>
+                <button class="nav-pill" onclick="runTool('practice_questions')">Practice Quiz</button>
+                <button class="nav-pill" onclick="runTool('mindmap')">Mind Maps</button>
+                <button class="nav-pill" onclick="openHistoryModal()">History</button>
             </div>
-            <div class="brand-text">
-                <h2>SmartNotes</h2>
-                <p>AI Powered Lecture Notes</p>
-            </div>
-        </div>
 
-        <nav class="sidebar-nav">
-            <button class="nav-item" onclick="goDashboard()">⌂ <span>Dashboard</span></button>
-            <button class="nav-item active" id="currentDocBtn">📄 <span>Current Document</span></button>
-            <button class="nav-item" onclick="goDashboard()">▣ <span>My Notes</span></button>
-            <button class="nav-item" onclick="runTool('flashcards')">▤ <span>Flashcards</span></button>
-            <button class="nav-item" onclick="runTool('practice_questions')">❓ <span>Practice Questions</span></button>
-            <button class="nav-item" onclick="runTool('mindmap')">◎ <span>Mind Maps</span></button>
-            <button class="nav-item" onclick="goDashboard()">◷ <span>History</span></button>
-            <button class="nav-item" onclick="logoutUser()">🚪 <span>Logout</span></button>
+            <!-- RIGHT: Theme Toggle, Notifications, Profile -->
+            <div class="nav-right">
+                <!-- Theme Toggle Button with Rotating Sun / Moon Icons -->
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle light or dark theme" title="Toggle theme">
+                    <span class="theme-icon sun-icon">☀️</span>
+                    <span class="theme-icon moon-icon">🌙</span>
+                </button>
+
+                <!-- Notifications / Saved Notes Icon -->
+                <button class="nav-icon-btn" onclick="openMyNotesModal()" aria-label="Saved Documents" title="My Saved Documents">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="notification-dot"></span>
+                </button>
+
+                <!-- User Profile Trigger & Dropdown -->
+                <div class="user-menu-container">
+                    <button class="nav-user-trigger" id="userMenuBtn" onclick="toggleUserDropdown(event)" aria-haspopup="true">
+                        <div class="user-avatar" id="navbarAvatar">S</div>
+                        <span class="user-name" id="navbarStudentName">Student</span>
+                        <span class="user-chevron">▾</span>
+                    </button>
+
+                    <!-- Account Dropdown Menu -->
+                    <div class="account-dropdown" id="accountDropdown">
+                        <div class="dropdown-user-info">
+                            <div class="user-avatar" id="dropdownAvatar">S</div>
+                            <div class="dropdown-text">
+                                <strong id="dropdownName">Student</strong>
+                                <span id="dropdownEmail">student@smartnotes.ai</span>
+                            </div>
+                        </div>
+                        <span class="dropdown-plan-badge">Pro Student Plan</span>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item" onclick="openMyNotesModal()">
+                            <span>📂</span> My Saved Notes
+                        </button>
+                        <button class="dropdown-item" onclick="openHistoryModal()">
+                            <span>◷</span> Upload History
+                        </button>
+                        <button class="dropdown-item" onclick="openSettingsModal()">
+                            <span>⚙️</span> Preferences & AI Settings
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item logout" onclick="logoutUser()">
+                            <span>🚪</span> Sign Out
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Hamburger Button -->
+                <button class="mobile-hamburger-btn" id="mobileHamburgerBtn" onclick="toggleMobileNav()" aria-label="Toggle navigation">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
         </nav>
 
-        <div class="sidebar-card">
-            <strong>Learn Smarter<br>Not Harder</strong>
-            <p>Turn your lectures into clear, organized study material with AI.</p>
-        </div>
-
-        <!-- STUDENT PROFILE -->
-        <div class="student-profile" style="cursor:default;" title="Logged in account">
-            <div class="student-avatar" id="sidebarAvatar">H</div>
-            <div>
-                <strong id="sidebarStudentName">Loading...</strong>
-                <span id="sidebarStudentEmail"></span>
+        <!-- Mobile Navigation Drawer -->
+        <div class="mobile-nav-drawer" id="mobileNavDrawer">
+            <button class="mobile-nav-link" onclick="goDashboard(); closeMobileNav();">⌂ Back to Dashboard</button>
+            <button class="mobile-nav-link active">📄 Current Document Workspace</button>
+            <button class="mobile-nav-link" onclick="openMyNotesModal(); closeMobileNav();">📂 My Saved Notes</button>
+            <button class="mobile-nav-link" onclick="runTool('flashcards'); closeMobileNav();">🃏 Active Recall Flashcards</button>
+            <button class="mobile-nav-link" onclick="runTool('practice_questions'); closeMobileNav();">❓ Practice Quiz</button>
+            <button class="mobile-nav-link" onclick="runTool('mindmap'); closeMobileNav();">🗺️ Mind Maps</button>
+            <button class="mobile-nav-link" onclick="openHistoryModal(); closeMobileNav();">◷ Upload History</button>
+            <div class="mobile-drawer-footer">
+                <div class="mobile-user-row">
+                    <div class="user-avatar" id="mobileDrawerAvatar">S</div>
+                    <span id="mobileDrawerName" style="font-size: 13px; font-weight: 600;">Student</span>
+                </div>
+                <button class="btn-mobile-logout" onclick="logoutUser()">Sign Out</button>
             </div>
         </div>
-    </aside>
+    </header>
 
-    <main class="workspace">
+    <!-- =========================================
+         WORKSPACE MAIN CONTENT
+    ========================================= -->
+    <main class="workspace-main-container">
 
-        <!-- TOP BAR -->
-        <header class="workspace-topbar">
-            <button class="back-button" onclick="goDashboard()">
-                ← Dashboard
-            </button>
+        <!-- DOCUMENT TOP BAR HEADER -->
+        <div class="workspace-topbar">
+            <div class="workspace-topbar-left">
+                <button class="back-button" onclick="goDashboard()">
+                    ← Back to Dashboard
+                </button>
 
-            <div class="document-title">
-                <span id="topbarIcon">📄</span>
-                <div>
-                    <strong id="documentName">Your Document</strong>
-                    <small id="documentPages">Processing...</small>
+                <div class="document-title">
+                    <div class="document-title-icon" id="topbarIcon">📄</div>
+                    <div class="document-meta-text">
+                        <strong id="documentName">Loading Lecture Document...</strong>
+                        <div class="document-meta-badges">
+                            <span id="pageBadge" class="meta-badge pdf">📄 PDF Document</span>
+                            <span id="wordCountBadge" class="word-count-badge">📝 Calculating words...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="top-actions" style="margin-left:auto;">
-                <button class="btn-action" onclick="copyDocumentText()">📋 Copy Text</button>
+            <div class="workspace-topbar-actions">
+                <button class="btn-action" onclick="copyDocumentText()">📋 Copy Document Text</button>
+                <button class="btn-action" onclick="downloadOriginalText()">📥 Download Text</button>
             </div>
-        </header>
+        </div>
 
-        <!-- WORKSPACE GRID -->
-        <section class="workspace-grid">
+        <!-- TWO-COLUMN WORKSPACE GRID -->
+        <div class="workspace-grid">
 
-            <!-- DOCUMENT PANEL -->
+            <!-- LEFT COLUMN: EXTRACTED CONTENT -->
             <div class="document-panel">
                 <div class="panel-header">
                     <div>
-                        <h2>Extracted Content</h2>
-                        <p id="panelSubtitle">Text extracted from your uploaded lecture</p>
+                        <h2>📖 Extracted Content</h2>
+                        <p id="panelSubtitle">Original text extracted from your lecture material</p>
                     </div>
-                    <span id="pageBadge" class="source-badge pdf">0 pages</span>
+                    <span class="meta-badge" id="sourceIndicatorBadge">Source Ready</span>
                 </div>
 
                 <div class="document-content" id="documentContent">
-                    <p class="workspace-empty">Your extracted document content will appear here.</p>
+                    <p class="workspace-empty" style="text-align: center; color: var(--text-muted); padding: 60px 20px;">
+                        Loading document text... Please wait.
+                    </p>
+                </div>
+
+                <div class="panel-footer-actions">
+                    <button class="btn-action" onclick="copyDocumentText()">📋 Copy Extracted Text</button>
+                    <button class="btn-action" onclick="downloadOriginalText()">📥 Save .txt</button>
                 </div>
             </div>
 
-            <!-- AI PANEL -->
+            <!-- RIGHT COLUMN: AI STUDY TOOLS & WORKSPACE OUTPUT -->
             <div class="ai-panel">
                 <div class="panel-header">
                     <div>
-                        <h2>✨ AI Study Tools</h2>
-                        <p>Click any tool to transform your document</p>
+                        <h2>✨ AI Study Suite</h2>
+                        <p>Select any tool to transform your lecture into study material</p>
                     </div>
                 </div>
 
-                <!-- ALL 6 AI STUDY TOOLS -->
-                <div class="ai-tools">
-                    <button class="ai-tool" id="smartNotesBtn" onclick="runTool('smart_notes')">
-                        <span>📘</span>
-                        <div>
+                <!-- 6 AI STUDY TOOLS GRID -->
+                <div class="ai-tools-grid">
+                    <button class="ai-tool-pill" id="smartNotesBtn" onclick="runTool('smart_notes')">
+                        <span class="tool-pill-icon">📘</span>
+                        <div class="tool-pill-text">
                             <strong>Smart Notes</strong>
-                            <small>Comprehensive notes</small>
+                            <small>Topic-wise notes</small>
                         </div>
                     </button>
 
-                    <button class="ai-tool" id="summarizeBtn" onclick="runTool('summarize')">
-                        <span>🧠</span>
-                        <div>
+                    <button class="ai-tool-pill" id="summarizeBtn" onclick="runTool('summarize')">
+                        <span class="tool-pill-icon">🧠</span>
+                        <div class="tool-pill-text">
                             <strong>Summarize</strong>
-                            <small>Quick executive summary</small>
+                            <small>Executive bullet points</small>
                         </div>
                     </button>
 
-                    <button class="ai-tool" id="keyPointsBtn" onclick="runTool('key_points')">
-                        <span>🔑</span>
-                        <div>
+                    <button class="ai-tool-pill" id="keyPointsBtn" onclick="runTool('key_points')">
+                        <span class="tool-pill-icon">🔑</span>
+                        <div class="tool-pill-text">
                             <strong>Key Points</strong>
-                            <small>Crucial concepts & facts</small>
+                            <small>High-yield facts</small>
                         </div>
                     </button>
 
-                    <button class="ai-tool" id="flashcardsBtn" onclick="runTool('flashcards')">
-                        <span>🃏</span>
-                        <div>
+                    <button class="ai-tool-pill" id="flashcardsBtn" onclick="runTool('flashcards')">
+                        <span class="tool-pill-icon">🃏</span>
+                        <div class="tool-pill-text">
                             <strong>Flashcards</strong>
-                            <small>Active recall flipcards</small>
+                            <small>3D Flip cards</small>
                         </div>
                     </button>
 
-                    <button class="ai-tool" id="practiceQuestionsBtn" onclick="runTool('practice_questions')">
-                        <span>❓</span>
-                        <div>
+                    <button class="ai-tool-pill" id="practiceQuestionsBtn" onclick="runTool('practice_questions')">
+                        <span class="tool-pill-icon">❓</span>
+                        <div class="tool-pill-text">
                             <strong>Practice Quiz</strong>
-                            <small>MCQs & revision Q&A</small>
+                            <small>Interactive MCQs</small>
                         </div>
                     </button>
 
-                    <button class="ai-tool" id="mindMapBtn" onclick="runTool('mindmap')">
-                        <span>🗺️</span>
-                        <div>
+                    <button class="ai-tool-pill" id="mindMapBtn" onclick="runTool('mindmap')">
+                        <span class="tool-pill-icon">🗺️</span>
+                        <div class="tool-pill-text">
                             <strong>Mind Map</strong>
-                            <small>Visual concept hierarchy</small>
+                            <small>Concept diagram</small>
                         </div>
                     </button>
                 </div>
 
-                <!-- AI OUTPUT -->
-                <div class="ai-output">
-                    <div class="ai-output-header" style="display:flex; justify-content:space-between; align-items:center;">
-                        <h2 id="aiOutputTitle">AI Output</h2>
-                        <div class="output-actions" id="outputActions" style="display:none;">
-                            <button class="btn-action" onclick="copyAiOutput()">📋 Copy</button>
+                <!-- AI OUTPUT CONTAINER -->
+                <div class="ai-output-wrapper">
+                    <div class="ai-output-header">
+                        <h3 id="aiOutputTitle">✨ AI Output</h3>
+                        <div class="output-actions" id="outputActions" style="display:none; gap: 8px;">
+                            <button class="btn-action" onclick="copyAiOutput()">📋 Copy Notes</button>
                             <button class="btn-action" onclick="downloadAiNotes()">💾 Save .txt</button>
+                            <button class="btn-action" onclick="regenerateCurrentTool()" title="Regenerate with fresh AI response">🔄 Regenerate</button>
                         </div>
                     </div>
 
-                    <div id="aiOutput">
-                        <div class="ai-placeholder">
-                            <div class="ai-placeholder-icon">✨</div>
-                            <h3>Your AI study material will appear here</h3>
-                            <p>Select any of the 6 tools above to transform your lecture into study notes.</p>
+                    <div class="ai-output-body" id="aiOutput">
+                        <div class="ai-placeholder-state">
+                            <div class="ai-placeholder-icon-wrap">✨</div>
+                            <h3>Your AI Study Material Will Appear Here</h3>
+                            <p>Select any of the 6 tools above to transform your lecture notes into high-yield summaries, flashcards, quizzes, or mind maps.</p>
                         </div>
                     </div>
                 </div>
 
             </div>
 
-        </section>
+        </div>
 
     </main>
 
+    <!-- =========================================
+         MODALS (My Notes, History, Settings)
+    ========================================= -->
+    <!-- My Notes Modal -->
+    <div class="modal-overlay" id="myNotesModal" style="display: none;" onclick="closeModalOnOverlay(event, 'myNotesModal')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2><span>📂</span> My Saved Documents & Notes</h2>
+                <button class="modal-close" onclick="closeModal('myNotesModal')">✕</button>
+            </div>
+            <div class="modal-body" id="myNotesModalBody">
+                <p style="text-align: center; color: var(--text-secondary); padding: 24px;">Loading documents...</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" onclick="closeModal('myNotesModal')">Close</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- History Modal -->
+    <div class="modal-overlay" id="historyModal" style="display: none;" onclick="closeModalOnOverlay(event, 'historyModal')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2><span>◷</span> Upload History</h2>
+                <button class="modal-close" onclick="closeModal('historyModal')">✕</button>
+            </div>
+            <div class="modal-body" id="historyModalBody">
+                <p style="text-align: center; color: var(--text-secondary); padding: 24px;">Loading history...</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" onclick="closeModal('historyModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal" style="display: none;" onclick="closeModalOnOverlay(event, 'settingsModal')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2><span>⚙️</span> Study Preferences & AI Engine</h2>
+                <button class="modal-close" onclick="closeModal('settingsModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div>
+                        <strong style="display: block; font-size: 13.5px; color: var(--text-primary); margin-bottom: 6px;">AI Generation Engine</strong>
+                        <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;">
+                            Powered by Gemini AI 2.0 with high-speed SSL transport. Study materials are automatically structured for university exams and rapid revision.
+                        </p>
+                    </div>
+                    <div>
+                        <strong style="display: block; font-size: 13.5px; color: var(--text-primary); margin-bottom: 6px;">Theme Mode</strong>
+                        <button class="btn-action" onclick="toggleTheme()" style="display: inline-flex; align-items: center; gap: 8px;">
+                            <span>🌓 Switch Light / Dark Mode</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" onclick="closeModal('settingsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =========================================
+         WORKSPACE JAVASCRIPT LOGIC
+    ========================================= */ -->
     <script>
     /* =========================================
-       GLOBAL STATE
+       GLOBAL WORKSPACE STATE
     ========================================= */
     let currentRawResult = "";
+    let currentActiveTool = "smart_notes";
     let flashcardDeck = [];
     let currentFlashcardIndex = 0;
-    let isFlipped = false;
+    let quizData = [];
+    let quizScore = 0;
+    let answeredQuestionsCount = 0;
+    let currentMindMapZoom = 1.0;
 
-    /* =========================================
-       NAVIGATION
-    ========================================= */
     function goDashboard() {
         window.location.href = "/";
     }
 
     /* =========================================
-       LOAD DOCUMENT DATA
+       LOAD DOCUMENT CONTENT & METADATA
     ========================================= */
-    const documentText = sessionStorage.getItem("smartnotes_text") || sessionStorage.getItem("notegenz_text") || "";
-    const documentName = sessionStorage.getItem("smartnotes_filename") || sessionStorage.getItem("notegenz_filename") || "Your Document";
-    const documentPages = sessionStorage.getItem("smartnotes_pages") || sessionStorage.getItem("notegenz_pages") || "0";
-    const documentSource = sessionStorage.getItem("smartnotes_source") || sessionStorage.getItem("notegenz_source") || "pdf";
-    const preGeneratedNotes = sessionStorage.getItem("smartnotes_notes") || sessionStorage.getItem("notegenz_notes") || "";
+    let documentText = sessionStorage.getItem("smartnotes_text") || sessionStorage.getItem("notegenz_text") || "";
+    let documentName = sessionStorage.getItem("smartnotes_filename") || sessionStorage.getItem("notegenz_filename") || "Lecture Document";
+    let documentPages = sessionStorage.getItem("smartnotes_pages") || sessionStorage.getItem("notegenz_pages") || "1";
+    let documentSource = sessionStorage.getItem("smartnotes_source") || sessionStorage.getItem("notegenz_source") || "pdf";
+    let preGeneratedNotes = sessionStorage.getItem("smartnotes_notes") || sessionStorage.getItem("notegenz_notes") || "";
 
-    if (documentText) {
-        document.getElementById("documentContent").textContent = documentText;
+    function initDocumentView() {
+        const docContentEl = document.getElementById("documentContent");
+        const docNameEl = document.getElementById("documentName");
+        const pageBadgeEl = document.getElementById("pageBadge");
+        const topbarIconEl = document.getElementById("topbarIcon");
+        const panelSubtitleEl = document.getElementById("panelSubtitle");
+        const sourceIndicatorBadge = document.getElementById("sourceIndicatorBadge");
+        const wordCountBadge = document.getElementById("wordCountBadge");
+
+        if (documentName) {
+            docNameEl.textContent = documentName;
+        }
+
+        if (documentText && documentText.trim()) {
+            docContentEl.textContent = documentText;
+            const words = documentText.trim().split(/\s+/).length;
+            wordCountBadge.textContent = `📝 ${words.toLocaleString()} words`;
+        } else {
+            // Attempt to fetch user's newest document from server if session is empty
+            fetchLatestUserDocument();
+        }
+
+        if (documentSource === "audio") {
+            topbarIconEl.textContent = "🎙️";
+            pageBadgeEl.textContent = "🎙️ Audio Lecture";
+            pageBadgeEl.className = "meta-badge audio";
+            panelSubtitleEl.textContent = "Audio speech transcribed into study material";
+            sourceIndicatorBadge.textContent = "Audio Source";
+        } else if (documentSource === "youtube") {
+            topbarIconEl.textContent = "▶";
+            pageBadgeEl.textContent = "▶ YouTube Lecture";
+            pageBadgeEl.className = "meta-badge youtube";
+            panelSubtitleEl.textContent = "YouTube video lecture content & transcript";
+            sourceIndicatorBadge.textContent = "YouTube Source";
+        } else {
+            topbarIconEl.textContent = "📄";
+            const pNum = (documentPages && documentPages !== "0") ? `${documentPages} page(s)` : "PDF Document";
+            pageBadgeEl.textContent = `📄 ${pNum}`;
+            pageBadgeEl.className = "meta-badge pdf";
+            panelSubtitleEl.textContent = "Text extracted from your uploaded lecture PDF";
+            sourceIndicatorBadge.textContent = "PDF Document";
+        }
+
+        // If pre-generated notes exist (e.g. from YouTube or Audio upload), auto-display
+        if (preGeneratedNotes && preGeneratedNotes.trim()) {
+            displayMarkdownResult("📘 Smart Notes", preGeneratedNotes, true);
+            highlightActiveToolPill("smartNotesBtn");
+        }
+
+        // Check if an auto-tool was requested from Dashboard navigation
+        const autoTool = sessionStorage.getItem("smartnotes_auto_tool");
+        if (autoTool) {
+            sessionStorage.removeItem("smartnotes_auto_tool");
+            setTimeout(() => runTool(autoTool), 250);
+        }
     }
-    if (documentName) {
-        document.getElementById("documentName").textContent = documentName;
-    }
 
-    const pageBadge = document.getElementById("pageBadge");
-    const panelSubtitle = document.getElementById("panelSubtitle");
-    const topbarIcon = document.getElementById("topbarIcon");
-    const currentDocBtn = document.getElementById("currentDocBtn");
+    async function fetchLatestUserDocument() {
+        try {
+            const res = await fetch('/api/documents');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success && data.documents && data.documents.length > 0) {
+                    const latest = data.documents[0];
+                    documentText = latest.extracted_text || latest.text || "";
+                    documentName = latest.filename || latest.name || "Lecture Document";
+                    documentPages = latest.pages || "1";
+                    documentSource = latest.file_type || latest.type || "pdf";
+                    preGeneratedNotes = latest.notes || "";
 
-    if (documentSource === "audio") {
-        document.getElementById("documentPages").textContent = "Audio Lecture";
-        pageBadge.textContent = "🎙️ Audio";
-        pageBadge.className = "source-badge audio";
-        panelSubtitle.textContent = "🎙️ Audio Recording Transcript";
-        topbarIcon.textContent = "🎙️";
-        if (currentDocBtn) currentDocBtn.innerHTML = "🎙️ <span>Audio Recording</span>";
-    } else if (documentSource === "youtube") {
-        document.getElementById("documentPages").textContent = "YouTube Lecture";
-        pageBadge.textContent = "▶ YouTube";
-        pageBadge.className = "source-badge youtube";
-        panelSubtitle.textContent = "▶ YouTube Lecture Content";
-        topbarIcon.textContent = "▶";
-        if (currentDocBtn) currentDocBtn.innerHTML = "▶ <span>YouTube Lecture</span>";
-    } else {
-        const pagesStr = documentPages && documentPages !== "0" ? `${documentPages} page(s)` : "PDF Document";
-        document.getElementById("documentPages").textContent = pagesStr;
-        pageBadge.textContent = `📄 ${pagesStr}`;
-        pageBadge.className = "source-badge pdf";
-        panelSubtitle.textContent = "📄 Text extracted from your uploaded PDF";
-        topbarIcon.textContent = "📄";
-    }
+                    sessionStorage.setItem("smartnotes_text", documentText);
+                    sessionStorage.setItem("smartnotes_filename", documentName);
+                    sessionStorage.setItem("smartnotes_pages", documentPages);
+                    sessionStorage.setItem("smartnotes_source", documentSource);
 
-    // Auto-display pre-generated notes for Audio/YouTube
-    if (preGeneratedNotes.trim()) {
-        displayRawResult("📘 Smart Notes", preGeneratedNotes, true);
-        highlightActiveTool("smartNotesBtn");
-    }
+                    document.getElementById("documentName").textContent = documentName;
+                    document.getElementById("documentContent").textContent = documentText;
+                    const words = documentText.trim().split(/\s+/).length;
+                    document.getElementById("wordCountBadge").textContent = `📝 ${words.toLocaleString()} words`;
 
-    // Check if auto_tool requested from homepage
-    const autoTool = sessionStorage.getItem("smartnotes_auto_tool");
-    if (autoTool) {
-        sessionStorage.removeItem("smartnotes_auto_tool");
-        setTimeout(() => runTool(autoTool), 300);
+                    if (preGeneratedNotes.trim()) {
+                        displayMarkdownResult("📘 Smart Notes", preGeneratedNotes, true);
+                        highlightActiveToolPill("smartNotesBtn");
+                    }
+                }
+            }
+        } catch(e) {
+            console.log("Notice: document load note:", e);
+        }
     }
 
     /* =========================================
-       AI STUDY TOOLS DISPATCHER
+       AI STUDY SUITE RUNNER
     ========================================= */
     async function runTool(toolName) {
-        if (!documentText || documentText.trim() === "") {
+        currentActiveTool = toolName;
+
+        if (!documentText || !documentText.trim()) {
             document.getElementById("aiOutput").innerHTML = `
-                <div class="ai-placeholder">
-                    <div class="ai-placeholder-icon">⚠️</div>
-                    <h3>No document content</h3>
-                    <p>Please upload a PDF, audio recording, or YouTube link first.</p>
+                <div class="ai-placeholder-state">
+                    <div class="ai-placeholder-icon-wrap">⚠️</div>
+                    <h3>No Document Content Found</h3>
+                    <p>Please return to the dashboard and upload a lecture PDF, audio recording, or YouTube link first.</p>
+                    <button class="btn-action" onclick="goDashboard()" style="margin-top: 14px;">Go to Dashboard</button>
                 </div>
             `;
             return;
         }
 
-        const toolBtnMap = {
+        const pillMap = {
             "smart_notes": "smartNotesBtn",
             "summarize": "summarizeBtn",
             "key_points": "keyPointsBtn",
@@ -495,26 +639,26 @@
             "practice_questions": "practiceQuestionsBtn",
             "mindmap": "mindMapBtn"
         };
-        highlightActiveTool(toolBtnMap[toolName]);
+        highlightActiveToolPill(pillMap[toolName]);
 
         const titles = {
             "smart_notes": "📘 Smart Notes",
             "summarize": "🧠 Executive Summary",
-            "key_points": "🔑 Key Points",
-            "flashcards": "🃏 Flashcards Deck",
-            "practice_questions": "❓ Practice Quiz",
-            "mindmap": "🗺️ Mind Map"
+            "key_points": "🔑 Key Points & Exam Tips",
+            "flashcards": "🃏 Active Recall Flashcards",
+            "practice_questions": "❓ Interactive Practice Quiz",
+            "mindmap": "🗺️ Concept Mind Map"
         };
 
-        const aiOutput = document.getElementById("aiOutput");
-        document.getElementById("aiOutputTitle").textContent = titles[toolName] || "AI Output";
+        const aiOutputEl = document.getElementById("aiOutput");
+        document.getElementById("aiOutputTitle").textContent = titles[toolName] || "AI Study Material";
         document.getElementById("outputActions").style.display = "none";
 
-        aiOutput.innerHTML = `
-            <div class="ai-placeholder">
-                <div class="ai-placeholder-icon">✨</div>
+        aiOutputEl.innerHTML = `
+            <div class="ai-placeholder-state">
+                <div class="ai-spinner"></div>
                 <h3>Generating ${titles[toolName]}...</h3>
-                <p>AI is analyzing the lecture content. Please wait a moment.</p>
+                <p>Gemini AI is analyzing the document content and organizing high-yield study material. Please wait a moment.</p>
             </div>
         `;
 
@@ -528,134 +672,370 @@
                 })
             });
 
+            // Safe auth check: redirect to /login if unauthorized session
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+
+            // Safe content-type verification to prevent "Unexpected token '<'"
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                const textOutput = await response.text();
+                throw new Error(textOutput.includes("<!DOCTYPE") 
+                    ? "Server session expired or returned an HTML error. Please refresh or log in again." 
+                    : textOutput.slice(0, 150));
+            }
+
             const data = await response.json();
             if (!response.ok) {
-                throw new Error(data.error || "AI generation failed.");
+                throw new Error(data.error || "AI generation failed. Please retry.");
             }
 
             currentRawResult = data.result || "";
             document.getElementById("outputActions").style.display = "flex";
 
-            if (toolName === "flashcards" && Array.isArray(data.flashcards) && data.flashcards.length > 0) {
+            if (toolName === "practice_questions") {
+                if (Array.isArray(data.questions) && data.questions.length > 0) {
+                    renderPracticeQuiz(data.questions);
+                } else {
+                    renderPracticeQuizFallback(data.result);
+                }
+            } else if (toolName === "flashcards" && Array.isArray(data.flashcards) && data.flashcards.length > 0) {
                 renderFlashcards(data.flashcards);
-            } else if (toolName === "practice_questions") {
-                renderPracticeQuestions(data.result);
             } else if (toolName === "mindmap") {
                 renderMindMap(data.result);
             } else {
-                displayRawResult(titles[toolName], data.result, false);
+                displayMarkdownResult(titles[toolName], data.result, false);
             }
 
+            // Silently persist generated study notes back to server
+            saveGeneratedToolData(toolName, data);
+
         } catch (err) {
-            aiOutput.innerHTML = `
-                <div class="ai-placeholder">
-                    <div class="ai-placeholder-icon">❌</div>
+            aiOutputEl.innerHTML = `
+                <div class="ai-placeholder-state">
+                    <div class="ai-placeholder-icon-wrap" style="background: rgba(239, 68, 68, 0.1);">❌</div>
                     <h3>Generation Failed</h3>
-                    <p>${err.message}</p>
+                    <p style="color: #ef4444;">${escapeHtml(err.message)}</p>
+                    <button class="btn-action" onclick="runTool('${toolName}')" style="margin-top: 14px;">🔄 Retry Generation</button>
                 </div>
             `;
         }
     }
 
-    function highlightActiveTool(buttonId) {
-        document.querySelectorAll(".ai-tool").forEach(btn => btn.classList.remove("active-tool"));
+    function regenerateCurrentTool() {
+        if (currentActiveTool) {
+            runTool(currentActiveTool);
+        }
+    }
+
+    function highlightActiveToolPill(buttonId) {
+        document.querySelectorAll(".ai-tool-pill").forEach(btn => btn.classList.remove("active"));
         if (buttonId) {
             const target = document.getElementById(buttonId);
-            if (target) target.classList.add("active-tool");
+            if (target) target.classList.add("active");
         }
-    }
-
-    function displayRawResult(title, content, isAutoGenerated) {
-        const aiOutput = document.getElementById("aiOutput");
-        currentRawResult = content;
-        document.getElementById("outputActions").style.display = "flex";
-
-        aiOutput.innerHTML = `
-            <div class="ai-result">
-                ${isAutoGenerated ? '<div class="auto-notes-banner">✅ AI Notes Auto-Generated</div>' : ''}
-                <div class="ai-result-text" style="white-space: pre-wrap; line-height: 1.7; font-size: 13.5px; color:#212e44;"></div>
-            </div>
-        `;
-        aiOutput.querySelector(".ai-result-text").textContent = content;
-    }
-
-    /* FLASHCARD INTERACTIVE RENDERER */
-    function renderFlashcards(cards) {
-        flashcardDeck = cards;
-        currentFlashcardIndex = 0;
-        isFlipped = false;
-        try {
-            currentRawResult = cards.map((c, i) => `[Card ${i + 1}] (${c.category || 'Concept'})\nQuestion: ${c.question}\nAnswer: ${c.answer}\n`).join("\n---\n\n");
-        } catch(e) {}
-        showFlashcard();
-    }
-
-    function showFlashcard() {
-        const aiOutput = document.getElementById("aiOutput");
-        const card = flashcardDeck[currentFlashcardIndex];
-        const total = flashcardDeck.length;
-
-        aiOutput.innerHTML = `
-            <div class="flashcards-container">
-                <div class="flashcard-card" onclick="flipFlashcard()">
-                    <div class="flashcard-header">
-                        <span>${card.category || "Concept"}</span>
-                        <span>Card ${currentFlashcardIndex + 1} of ${total}</span>
-                    </div>
-                    <div class="flashcard-body" id="flashcardContent">
-                        ${isFlipped ? `<strong>💡 Answer:</strong><br><br>${card.answer}` : `<strong>❓ Question:</strong><br><br>${card.question}`}
-                    </div>
-                    <div class="flashcard-footer">
-                        <span>Click card to ${isFlipped ? 'view question' : 'flip answer'}</span>
-                        <span>🔄 Flip</span>
-                    </div>
-                </div>
-
-                <div class="flashcard-nav">
-                    <button onclick="prevFlashcard()" ${currentFlashcardIndex === 0 ? 'disabled' : ''}>← Previous</button>
-                    <button onclick="flipFlashcard()">🔄 Flip Card</button>
-                    <button onclick="nextFlashcard()" ${currentFlashcardIndex === total - 1 ? 'disabled' : ''}>Next →</button>
-                </div>
-            </div>
-        `;
-    }
-
-    function flipFlashcard() {
-        isFlipped = !isFlipped;
-        showFlashcard();
-    }
-    function nextFlashcard() {
-        if (currentFlashcardIndex < flashcardDeck.length - 1) {
-            currentFlashcardIndex++;
-            isFlipped = false;
-            showFlashcard();
-        }
-    }
-    function prevFlashcard() {
-        if (currentFlashcardIndex > 0) {
-            currentFlashcardIndex--;
-            isFlipped = false;
-            showFlashcard();
-        }
-    }
-
-    /* PRACTICE QUESTIONS RENDERER */
-    function renderPracticeQuestions(text) {
-        currentRawResult = text;
-        const aiOutput = document.getElementById("aiOutput");
-        aiOutput.innerHTML = `
-            <div class="ai-result">
-                <div class="ai-result-text" style="white-space: pre-wrap; line-height: 1.7; font-size: 13.5px; color:#212e44;"></div>
-            </div>
-        `;
-        aiOutput.querySelector(".ai-result-text").textContent = text;
     }
 
     /* =========================================
-       MIND MAP INTERACTIVE VISUALIZER & OUTLINE
+       MARKDOWN NOTES RENDERER
     ========================================= */
-    let currentMindMapZoom = 1.0;
+    function displayMarkdownResult(title, content, isAutoGenerated) {
+        currentRawResult = content;
+        const aiOutputEl = document.getElementById("aiOutput");
+        document.getElementById("outputActions").style.display = "flex";
 
+        aiOutputEl.innerHTML = `
+            <div class="ai-markdown-wrapper">
+                ${isAutoGenerated ? '<div class="auto-notes-banner">✅ Notes Auto-Generated from Lecture</div>' : ''}
+                <div class="ai-markdown-body" id="markdownRenderZone"></div>
+            </div>
+        `;
+
+        const renderZone = document.getElementById("markdownRenderZone");
+        renderZone.innerHTML = formatMarkdownToHtml(content);
+    }
+
+    function formatMarkdownToHtml(md) {
+        if (!md) return "";
+        let escaped = escapeHtml(md);
+
+        // Convert headers
+        escaped = escaped.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+        escaped = escaped.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+        escaped = escaped.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+        // Bold and Italic
+        escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        escaped = escaped.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+        // Bullet lists
+        escaped = escaped.replace(/^\s*[-*]\s+(.*$)/gim, '<li>$1</li>');
+        escaped = escaped.replace(/(<li>.*<\/li>)/gim, '<ul>$1</ul>');
+        escaped = escaped.replace(/<\/ul>\s*<ul>/gim, '');
+
+        // Line breaks
+        escaped = escaped.replace(/\n\n/g, '<br><br>');
+        return escaped;
+    }
+
+    /* =========================================
+       INTERACTIVE MCQ PRACTICE QUIZ RENDERER
+    ========================================= */
+    function renderPracticeQuiz(questions) {
+        quizData = questions;
+        quizScore = 0;
+        answeredQuestionsCount = 0;
+        currentRawResult = JSON.stringify(questions, null, 2);
+
+        const aiOutputEl = document.getElementById("aiOutput");
+
+        let questionsHtml = "";
+        questions.forEach((q, idx) => {
+            const letters = ["A", "B", "C", "D"];
+            let optionsHtml = "";
+
+            (q.options || []).forEach((opt, optIdx) => {
+                const letter = letters[optIdx] || String.fromCharCode(65 + optIdx);
+                optionsHtml += `
+                    <button class="quiz-option-button" id="q_${idx}_opt_${optIdx}" onclick="handleQuizAnswer(${idx}, ${optIdx})">
+                        <span class="quiz-option-letter">${letter}</span>
+                        <span>${escapeHtml(opt)}</span>
+                    </button>
+                `;
+            });
+
+            questionsHtml += `
+                <div class="quiz-question-card" id="quizCard_${idx}">
+                    <div class="quiz-question-header">
+                        <span class="quiz-q-num-pill">Question ${idx + 1} of ${questions.length}</span>
+                    </div>
+                    <div class="quiz-question-title">${escapeHtml(q.question)}</div>
+                    <div class="quiz-options-list">
+                        ${optionsHtml}
+                    </div>
+                    <div class="quiz-explanation-box" id="quizExp_${idx}" style="display: none;">
+                        <div class="quiz-explanation-title">💡 Explanation:</div>
+                        <div>${escapeHtml(q.explanation || "Correct answer based on the lecture material.")}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        aiOutputEl.innerHTML = `
+            <div class="quiz-container">
+                <div class="quiz-score-header">
+                    <div class="quiz-score-counter">
+                        <span>Current Score:</span>
+                        <span class="quiz-score-badge" id="liveScoreBadge">0 / ${questions.length} (0%)</span>
+                    </div>
+                    <button class="btn-retake-quiz" onclick="retakeQuiz()">🔄 Retake Quiz</button>
+                </div>
+                ${questionsHtml}
+                <div id="quizCompletionSummary" style="display: none;"></div>
+            </div>
+        `;
+    }
+
+    function handleQuizAnswer(questionIdx, selectedOptIdx) {
+        const q = quizData[questionIdx];
+        if (!q || q.isAnswered) return;
+
+        q.isAnswered = true;
+        answeredQuestionsCount++;
+
+        const correctIdx = q.correct;
+        const isCorrect = (selectedOptIdx === correctIdx);
+
+        if (isCorrect) {
+            quizScore++;
+        }
+
+        // Highlight selected and correct options
+        const selectedBtn = document.getElementById(`q_${questionIdx}_opt_${selectedOptIdx}`);
+        const correctBtn = document.getElementById(`q_${questionIdx}_opt_${correctIdx}`);
+
+        if (selectedBtn) {
+            selectedBtn.classList.add(isCorrect ? "correct" : "wrong");
+        }
+        if (!isCorrect && correctBtn) {
+            correctBtn.classList.add("correct");
+        }
+
+        // Disable all option buttons for this question
+        (q.options || []).forEach((_, optIdx) => {
+            const btn = document.getElementById(`q_${questionIdx}_opt_${optIdx}`);
+            if (btn) btn.disabled = true;
+        });
+
+        // Show explanation
+        const expBox = document.getElementById(`quizExp_${questionIdx}`);
+        if (expBox) expBox.style.display = "block";
+
+        // Update score badge
+        const total = quizData.length;
+        const pct = Math.round((quizScore / total) * 100);
+        const badge = document.getElementById("liveScoreBadge");
+        if (badge) {
+            badge.textContent = `${quizScore} / ${total} (${pct}%)`;
+        }
+
+        // Check if quiz is fully completed
+        if (answeredQuestionsCount === total) {
+            showQuizCompletionSummary(quizScore, total, pct);
+        }
+    }
+
+    function showQuizCompletionSummary(score, total, pct) {
+        const summaryEl = document.getElementById("quizCompletionSummary");
+        if (!summaryEl) return;
+
+        let emoji = "🎉";
+        let message = "Outstanding! Perfect mastery of this lecture!";
+        if (pct < 60) {
+            emoji = "📚";
+            message = "Good start! Review the Smart Notes and retake the quiz to boost your score.";
+        } else if (pct < 90) {
+            emoji = "👏";
+            message = "Great performance! You're ready for exams!";
+        }
+
+        summaryEl.style.display = "block";
+        summaryEl.innerHTML = `
+            <div class="quiz-summary-banner">
+                <h3>${emoji} Quiz Complete: ${score} / ${total} (${pct}%)</h3>
+                <p>${message}</p>
+                <button class="btn-action" onclick="retakeQuiz()" style="margin-top: 14px;">🔄 Retake Quiz</button>
+            </div>
+        `;
+    }
+
+    function retakeQuiz() {
+        if (quizData && quizData.length > 0) {
+            quizData.forEach(q => q.isAnswered = false);
+            renderPracticeQuiz(quizData);
+        }
+    }
+
+    function renderPracticeQuizFallback(text) {
+        currentRawResult = text;
+        const aiOutputEl = document.getElementById("aiOutput");
+        aiOutputEl.innerHTML = `
+            <div class="ai-markdown-wrapper">
+                <div class="ai-markdown-body">
+                    ${formatMarkdownToHtml(text)}
+                </div>
+            </div>
+        `;
+    }
+
+    /* =========================================
+       3D FLIPPABLE FLASHCARDS RENDERER
+    ========================================= */
+    function renderFlashcards(cards) {
+        flashcardDeck = cards;
+        currentFlashcardIndex = 0;
+        try {
+            currentRawResult = cards.map((c, i) => `[Card ${i + 1}] (${c.category || 'Topic'})\nQuestion: ${c.question}\nAnswer: ${c.answer}`).join("\n\n---\n\n");
+        } catch(e) {}
+        showFlashcardView();
+    }
+
+    function showFlashcardView() {
+        const aiOutputEl = document.getElementById("aiOutput");
+        const total = flashcardDeck.length;
+        const card = flashcardDeck[currentFlashcardIndex] || { question: "No card", answer: "No answer", category: "Topic" };
+        const progressPct = Math.round(((currentFlashcardIndex + 1) / total) * 100);
+
+        aiOutputEl.innerHTML = `
+            <div class="flashcards-suite">
+                <div class="flashcard-progress-wrap">
+                    <span>Card ${currentFlashcardIndex + 1} of ${total}</span>
+                    <div class="flashcard-progress-bar-bg">
+                        <div class="flashcard-progress-bar-fill" style="width: ${progressPct}%;"></div>
+                    </div>
+                    <span>${progressPct}%</span>
+                </div>
+
+                <div class="flashcard-3d-scene" id="flashcardScene" onclick="toggleCardFlip()">
+                    <div class="flashcard-3d-inner" id="flashcardInner">
+                        <!-- FRONT -->
+                        <div class="flashcard-face front">
+                            <div class="flashcard-card-header">
+                                <span class="flashcard-category-tag">${escapeHtml(card.category || "Core Concept")}</span>
+                                <span>Question ❓</span>
+                            </div>
+                            <div class="flashcard-card-content">
+                                ${escapeHtml(card.question)}
+                            </div>
+                            <div class="flashcard-card-footer">
+                                <span>Click card to reveal answer</span>
+                                <span>🔄 Flip</span>
+                            </div>
+                        </div>
+
+                        <!-- BACK -->
+                        <div class="flashcard-face back">
+                            <div class="flashcard-card-header">
+                                <span class="flashcard-category-tag" style="background: rgba(196, 154, 72, 0.15); color: var(--accent-gold);">Answer 💡</span>
+                                <span>Verified</span>
+                            </div>
+                            <div class="flashcard-card-content" style="color: var(--text-primary);">
+                                ${escapeHtml(card.answer)}
+                            </div>
+                            <div class="flashcard-card-footer">
+                                <span>Click card to view question</span>
+                                <span>🔄 Flip back</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flashcard-controls-row">
+                    <button class="btn-card-nav" onclick="prevCard()" ${currentFlashcardIndex === 0 ? 'disabled' : ''}>← Previous</button>
+                    <button class="btn-card-flip" onclick="toggleCardFlip()">🔄 Flip Card (Space)</button>
+                    <button class="btn-card-nav" onclick="nextCard()" ${currentFlashcardIndex === total - 1 ? 'disabled' : ''}>Next →</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function toggleCardFlip() {
+        const scene = document.getElementById("flashcardScene");
+        if (scene) scene.classList.toggle("flipped");
+    }
+
+    function nextCard() {
+        if (currentFlashcardIndex < flashcardDeck.length - 1) {
+            currentFlashcardIndex++;
+            showFlashcardView();
+        }
+    }
+
+    function prevCard() {
+        if (currentFlashcardIndex > 0) {
+            currentFlashcardIndex--;
+            showFlashcardView();
+        }
+    }
+
+    // Keyboard navigation for flashcards
+    window.addEventListener("keydown", function(e) {
+        if (currentActiveTool !== "flashcards" || flashcardDeck.length === 0) return;
+        if (e.key === " " || e.code === "Space") {
+            e.preventDefault();
+            toggleCardFlip();
+        } else if (e.key === "ArrowRight") {
+            nextCard();
+        } else if (e.key === "ArrowLeft") {
+            prevCard();
+        }
+    });
+
+    /* =========================================
+       MIND MAP INTERACTIVE VISUALIZER
+    ========================================= */
     function zoomMindMap(delta) {
         currentMindMapZoom = Math.min(2.0, Math.max(0.5, currentMindMapZoom + delta));
         const svg = document.getElementById("mindmapSvg");
@@ -701,17 +1081,8 @@
         }
     }
 
-    function escapeXml(unsafe) {
-        return (unsafe || "")
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&apos;');
-    }
-
     function parseMindMapData(text) {
-        let root = documentName.replace(/\.[^/.]+$/, "").slice(0, 26) || "Lecture";
+        let root = documentName.replace(/\.[^/.]+$/, "").slice(0, 26) || "Lecture Topic";
         const branches = [];
         const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
 
@@ -729,21 +1100,21 @@
 
             if (line.startsWith("##") || (!line.startsWith("-") && !line.startsWith("*") && !line.startsWith("    ") && !line.startsWith("\t"))) {
                 if (clean.toLowerCase() !== root.toLowerCase()) {
-                    currentBranch = { title: clean.slice(0, 30), subs: [] };
+                    currentBranch = { title: clean.slice(0, 28), subs: [] };
                     if (branches.length < 6) {
                         branches.push(currentBranch);
                     }
                 }
             } else if (currentBranch && currentBranch.subs.length < 3) {
-                currentBranch.subs.push(clean.slice(0, 32));
+                currentBranch.subs.push(clean.slice(0, 30));
             }
         }
 
         if (branches.length < 2) {
-            branches.push({ title: "Core Concepts", subs: ["Definitions", "Fundamental Principles"] });
-            branches.push({ title: "Methodology", subs: ["Key Steps", "Key Processes"] });
-            branches.push({ title: "Applications", subs: ["Practical Examples", "Use Cases"] });
-            branches.push({ title: "Key Takeaways", subs: ["Summary", "Important Facts"] });
+            branches.push({ title: "Core Concepts", subs: ["Fundamental Principles", "Key Definitions"] });
+            branches.push({ title: "Methodology", subs: ["Step-by-step Process", "Key Techniques"] });
+            branches.push({ title: "Applications", subs: ["Practical Examples", "Real-world Uses"] });
+            branches.push({ title: "Exam Highlights", subs: ["Summary", "Important Tips"] });
         }
 
         return { root, branches };
@@ -752,7 +1123,7 @@
     function renderMindMap(text) {
         currentRawResult = text;
         const data = parseMindMapData(text);
-        const aiOutput = document.getElementById("aiOutput");
+        const aiOutputEl = document.getElementById("aiOutput");
 
         const width = 960;
         const height = Math.max(500, Math.max(data.branches.length, 4) * 115);
@@ -793,8 +1164,8 @@
                 <g filter="url(#shadow)">
                     <rect x="${branchX - 85}" y="${branchY - 22}" width="170" height="44" rx="10"
                           fill="${color.bg}" stroke="${color.border}" stroke-width="2"/>
-                    <text x="${branchX}" y="${branchY + 4}" font-family="system-ui, sans-serif" font-size="12" font-weight="700"
-                          fill="${color.text}" text-anchor="middle">${escapeXml(b.title)}</text>
+                    <text x="${branchX}" y="${branchY + 4}" font-family="Plus Jakarta Sans, sans-serif" font-size="12" font-weight="700"
+                          fill="${color.text}" text-anchor="middle">${escapeHtml(b.title)}</text>
                 </g>
             `;
 
@@ -808,8 +1179,8 @@
                           stroke="${color.border}" stroke-width="1.5" stroke-dasharray="3,3" fill="none" opacity="0.6"/>
                     <rect x="${subX - 80}" y="${subY - 14}" width="160" height="28" rx="6"
                           fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
-                    <text x="${subX}" y="${subY + 4}" font-family="system-ui, sans-serif" font-size="10.5" font-weight="500"
-                          fill="#334155" text-anchor="middle">${escapeXml(sub)}</text>
+                    <text x="${subX}" y="${subY + 4}" font-family="Plus Jakarta Sans, sans-serif" font-size="10.5" font-weight="500"
+                          fill="#334155" text-anchor="middle">${escapeHtml(sub)}</text>
                 `;
             });
         });
@@ -827,8 +1198,8 @@
                 <g filter="url(#shadow)">
                     <rect x="${branchX - 85}" y="${branchY - 22}" width="170" height="44" rx="10"
                           fill="${color.bg}" stroke="${color.border}" stroke-width="2"/>
-                    <text x="${branchX}" y="${branchY + 4}" font-family="system-ui, sans-serif" font-size="12" font-weight="700"
-                          fill="${color.text}" text-anchor="middle">${escapeXml(b.title)}</text>
+                    <text x="${branchX}" y="${branchY + 4}" font-family="Plus Jakarta Sans, sans-serif" font-size="12" font-weight="700"
+                          fill="${color.text}" text-anchor="middle">${escapeHtml(b.title)}</text>
                 </g>
             `;
 
@@ -842,8 +1213,8 @@
                           stroke="${color.border}" stroke-width="1.5" stroke-dasharray="3,3" fill="none" opacity="0.6"/>
                     <rect x="${subX - 80}" y="${subY - 14}" width="160" height="28" rx="6"
                           fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
-                    <text x="${subX}" y="${subY + 4}" font-family="system-ui, sans-serif" font-size="10.5" font-weight="500"
-                          fill="#334155" text-anchor="middle">${escapeXml(sub)}</text>
+                    <text x="${subX}" y="${subY + 4}" font-family="Plus Jakarta Sans, sans-serif" font-size="10.5" font-weight="500"
+                          fill="#334155" text-anchor="middle">${escapeHtml(sub)}</text>
                 `;
             });
         });
@@ -852,21 +1223,21 @@
         svgContent += `
             <g filter="url(#shadow)">
                 <rect x="${centerX - 100}" y="${centerY - 30}" width="200" height="60" rx="30"
-                      fill="#ed2438" stroke="#ffffff" stroke-width="3"/>
-                <text x="${centerX}" y="${centerY + 6}" font-family="system-ui, sans-serif" font-size="13.5" font-weight="800"
-                      fill="#ffffff" text-anchor="middle">${escapeXml(data.root)}</text>
+                      fill="#F3263D" stroke="#ffffff" stroke-width="3"/>
+                <text x="${centerX}" y="${centerY + 6}" font-family="Plus Jakarta Sans, sans-serif" font-size="13.5" font-weight="800"
+                      fill="#ffffff" text-anchor="middle">${escapeHtml(data.root)}</text>
             </g>
         </svg>
         `;
 
-        aiOutput.innerHTML = `
+        aiOutputEl.innerHTML = `
             <div class="mindmap-wrapper">
                 <div class="mindmap-toolbar">
                     <div class="mindmap-zoom-controls">
-                        <button type="button" onclick="zoomMindMap(-0.15)" title="Zoom Out" aria-label="Zoom out">−</button>
+                        <button type="button" onclick="zoomMindMap(-0.15)" title="Zoom Out">−</button>
                         <span class="mindmap-zoom-level" id="mindmapZoomLabel">100%</span>
-                        <button type="button" onclick="zoomMindMap(0.15)" title="Zoom In" aria-label="Zoom in">+</button>
-                        <button type="button" onclick="resetMindMapZoom()" title="Reset Zoom" aria-label="Reset zoom">⟲</button>
+                        <button type="button" onclick="zoomMindMap(0.15)" title="Zoom In">+</button>
+                        <button type="button" onclick="resetMindMapZoom()" title="Reset Zoom">⟲</button>
                     </div>
                     <div class="mindmap-view-toggle">
                         <button type="button" id="btnViewDiagram" class="active" onclick="setMindMapView('diagram')">🗺️ Diagram</button>
@@ -884,7 +1255,35 @@
         currentMindMapZoom = 1.0;
     }
 
-    /* COPY & DOWNLOAD */
+    /* =========================================
+       SILENT DATABASE SYNC
+    ========================================= */
+    async function saveGeneratedToolData(toolName, data) {
+        try {
+            const payload = {
+                filename: documentName,
+                file_type: documentSource,
+                pages: parseInt(documentPages) || 1,
+                extracted_text: documentText
+            };
+            if (toolName === "smart_notes") payload.notes = data.result;
+            if (toolName === "summarize") payload.summary = data.result;
+            if (toolName === "key_points") payload.key_points = data.result;
+            if (toolName === "flashcards") payload.flashcards = JSON.stringify(data.flashcards || []);
+            if (toolName === "practice_questions") payload.practice_questions = JSON.stringify(data.questions || []);
+            if (toolName === "mindmap") payload.mindmap = data.result;
+
+            await fetch('/api/documents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        } catch(e) {}
+    }
+
+    /* =========================================
+       COPY & DOWNLOAD HANDLERS
+    ========================================= */
     function copyAiOutput() {
         if (!currentRawResult) return;
         navigator.clipboard.writeText(currentRawResult).then(() => {
@@ -912,57 +1311,62 @@
         URL.revokeObjectURL(url);
     }
 
+    function downloadOriginalText() {
+        if (!documentText) return;
+        const blob = new Blob([documentText], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${documentName.replace(/[^a-zA-Z0-9]/g, "_")}_Original.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
     /* =========================================
-       MOBILE SIDEBAR DRAWER CONTROLLER
+       THEME CONTROLLER (ANIMATED SUN / MOON)
     ========================================= */
-    function toggleMobileSidebar() {
-        const sidebar = document.getElementById("sidebar");
-        const backdrop = document.getElementById("sidebarBackdrop");
-        const isOpen = sidebar.classList.toggle("menu-open");
-        if (backdrop) backdrop.classList.toggle("active", isOpen);
-        document.body.classList.toggle("sidebar-open", isOpen);
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('smartnotes_theme', next);
     }
 
-    function closeMobileSidebar() {
-        const sidebar = document.getElementById("sidebar");
-        const backdrop = document.getElementById("sidebarBackdrop");
-        if (sidebar) sidebar.classList.remove("menu-open");
-        if (backdrop) backdrop.classList.remove("active");
-        document.body.classList.remove("sidebar-open");
+    /* =========================================
+       USER MENU & AUTHENTICATION
+    ========================================= */
+    function toggleUserDropdown(e) {
+        e.stopPropagation();
+        const dd = document.getElementById("accountDropdown");
+        const trigger = document.getElementById("userMenuBtn");
+        const isOpen = dd.classList.toggle("show");
+        if (trigger) trigger.classList.toggle("active", isOpen);
     }
-
-    function openMobileSidebar() {
-        const sidebar = document.getElementById("sidebar");
-        const backdrop = document.getElementById("sidebarBackdrop");
-        if (sidebar) sidebar.classList.add("menu-open");
-        if (backdrop) backdrop.classList.add("active");
-        document.body.classList.add("sidebar-open");
-    }
-
-    // Close on nav item click
-    document.querySelectorAll(".sidebar-nav button, .student-profile").forEach(el => {
-        el.addEventListener("click", () => {
-            closeMobileSidebar();
-        });
-    });
 
     document.addEventListener("click", function(e) {
-        const sidebar = document.getElementById("sidebar");
-        const mobileBtn = document.getElementById("mobileMenuBtn");
-        if (sidebar && sidebar.classList.contains("menu-open")) {
-            if (!sidebar.contains(e.target) && (!mobileBtn || !mobileBtn.contains(e.target))) {
-                closeMobileSidebar();
+        const dd = document.getElementById("accountDropdown");
+        const trigger = document.getElementById("userMenuBtn");
+        if (dd && dd.classList.contains("show")) {
+            if (!dd.contains(e.target) && (!trigger || !trigger.contains(e.target))) {
+                dd.classList.remove("show");
+                if (trigger) trigger.classList.remove("active");
             }
         }
     });
 
-    /* =========================================
-       STUDENT PROFILE & AUTHENTICATION
-       Real server-side auth via Flask-Login
-    ========================================= */
+    function toggleMobileNav() {
+        const drawer = document.getElementById("mobileNavDrawer");
+        if (drawer) drawer.classList.toggle("open");
+    }
 
-    // On page load: check auth, redirect to /login if not logged in
-    (async function checkAuth() {
+    function closeMobileNav() {
+        const drawer = document.getElementById("mobileNavDrawer");
+        if (drawer) drawer.classList.remove("open");
+    }
+
+    async function checkAuth() {
         try {
             const res = await fetch('/api/auth/me');
             if (!res.ok) {
@@ -971,24 +1375,36 @@
             }
             const data = await res.json();
             if (data.authenticated && data.user) {
-                loadStudentProfile(data.user);
+                populateUserProfile(data.user);
             } else {
                 window.location.href = '/login';
             }
         } catch(e) {
             window.location.href = '/login';
         }
-    })();
+    }
 
-    function loadStudentProfile(user) {
+    function populateUserProfile(user) {
         if (!user) return;
-        const name = user.name || 'Student';
-        const email = user.email || '';
+        const name = user.name || "Student";
+        const email = user.email || "student@smartnotes.ai";
         const initial = name.charAt(0).toUpperCase();
-        if (document.getElementById('sidebarStudentName')) document.getElementById('sidebarStudentName').textContent = name;
-        if (document.getElementById('sidebarStudentEmail')) document.getElementById('sidebarStudentEmail').textContent = email;
-        if (document.getElementById('sidebarAvatar')) document.getElementById('sidebarAvatar').textContent = initial;
-        if (document.getElementById('mobileAvatar')) document.getElementById('mobileAvatar').textContent = initial;
+
+        const navbarName = document.getElementById("navbarStudentName");
+        const navbarAvatar = document.getElementById("navbarAvatar");
+        const dropName = document.getElementById("dropdownName");
+        const dropEmail = document.getElementById("dropdownEmail");
+        const dropAvatar = document.getElementById("dropdownAvatar");
+        const mobileName = document.getElementById("mobileDrawerName");
+        const mobileAvatar = document.getElementById("mobileDrawerAvatar");
+
+        if (navbarName) navbarName.textContent = name;
+        if (navbarAvatar) navbarAvatar.textContent = initial;
+        if (dropName) dropName.textContent = name;
+        if (dropEmail) dropEmail.textContent = email;
+        if (dropAvatar) dropAvatar.textContent = initial;
+        if (mobileName) mobileName.textContent = name;
+        if (mobileAvatar) mobileAvatar.textContent = initial;
     }
 
     async function logoutUser() {
@@ -998,18 +1414,114 @@
         window.location.href = '/login';
     }
 
-    // Stubs so existing HTML references don't break
-    function openLoginModal() { window.location.href = '/login'; }
-    function closeLoginModal() {}
-    function switchAuthTab() {}
-    function handleSignInSubmit(e) { e.preventDefault(); window.location.href = '/login'; }
-    function handleSignUpSubmit(e) { e.preventDefault(); window.location.href = '/login'; }
-    function togglePasswordVisibility(inputId, btn) {
-        const input = document.getElementById(inputId);
-        if (!input) return;
-        if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈 Hide'; }
-        else { input.type = 'password'; btn.textContent = '👁️ Show'; }
+    /* =========================================
+       MODALS CONTROLLER
+    ========================================= */
+    function openModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.style.display = "flex";
     }
+
+    function closeModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.style.display = "none";
+    }
+
+    function closeModalOnOverlay(e, id) {
+        if (e.target.id === id) {
+            closeModal(id);
+        }
+    }
+
+    async function openMyNotesModal() {
+        openModal('myNotesModal');
+        const body = document.getElementById('myNotesModalBody');
+        body.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 24px;">Loading saved documents from your account...</p>';
+
+        try {
+            const res = await fetch('/api/documents');
+            if (!res.ok) throw new Error("Could not fetch documents");
+            const data = await res.json();
+            const docs = data.documents || [];
+
+            if (docs.length === 0) {
+                body.innerHTML = `
+                    <div style="text-align: center; padding: 30px;">
+                        <div style="font-size: 32px; margin-bottom: 10px;">📂</div>
+                        <h4 style="color: var(--text-primary); margin-bottom: 6px;">No Documents Yet</h4>
+                        <p style="font-size: 13px; color: var(--text-secondary);">Upload a lecture PDF or audio recording to start generating notes.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+            docs.forEach(d => {
+                html += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border-subtle); background: var(--bg-card-subtle);">
+                        <div style="min-width: 0; flex: 1;">
+                            <strong style="display: block; font-size: 13.5px; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                ${d.file_type === 'audio' ? '🎙️' : d.file_type === 'youtube' ? '▶' : '📄'} ${escapeHtml(d.filename)}
+                            </strong>
+                            <small style="color: var(--text-secondary); font-size: 11px;">Saved: ${d.created_at || 'Recently'}</small>
+                        </div>
+                        <button class="btn-action" onclick="loadSavedDocument(${d.id})" style="margin-left: 12px;">Open</button>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            body.innerHTML = html;
+
+        } catch (err) {
+            body.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 20px;">${escapeHtml(err.message)}</p>`;
+        }
+    }
+
+    async function loadSavedDocument(docId) {
+        try {
+            const res = await fetch(`/api/documents/${docId}`);
+            if (!res.ok) throw new Error("Could not load document");
+            const data = await res.json();
+            const doc = data.document;
+
+            sessionStorage.setItem("smartnotes_text", doc.extracted_text || "");
+            sessionStorage.setItem("smartnotes_filename", doc.filename || "Lecture Document");
+            sessionStorage.setItem("smartnotes_pages", doc.pages || 1);
+            sessionStorage.setItem("smartnotes_source", doc.file_type || "pdf");
+            sessionStorage.setItem("smartnotes_notes", doc.notes || "");
+
+            closeModal('myNotesModal');
+            window.location.reload();
+        } catch(e) {
+            alert("Error loading document: " + e.message);
+        }
+    }
+
+    function openHistoryModal() {
+        openMyNotesModal();
+    }
+
+    function openSettingsModal() {
+        openModal('settingsModal');
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    /* =========================================
+       INITIALIZATION
+    ========================================= */
+    document.addEventListener("DOMContentLoaded", () => {
+        checkAuth();
+        initDocumentView();
+    });
     </script>
 </body>
 </html>

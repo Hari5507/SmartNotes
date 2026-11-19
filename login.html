@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartNotes – Sign In</title>
+    <!-- Prevent flash of unstyled theme -->
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('smartnotes_theme') || 
+                    (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch(e) {}
+        })();
+    </script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -406,6 +416,58 @@
             flex: 1;
             height: 1px;
             background: #e8edf5;
+        }
+
+        /* ─── Dark Mode Overrides ────────────────────────── */
+        [data-theme="dark"] body {
+            background: #101521;
+            color: #F5F6FA;
+        }
+        [data-theme="dark"] .right-panel {
+            background: #192334;
+        }
+        [data-theme="dark"] .form-title {
+            color: #F5F6FA;
+        }
+        [data-theme="dark"] .form-subtitle {
+            color: #AAB5C5;
+        }
+        [data-theme="dark"] .tab-bar {
+            background: #101521;
+        }
+        [data-theme="dark"] .tab-btn {
+            color: #AAB5C5;
+        }
+        [data-theme="dark"] .tab-btn.active {
+            background: #202D40;
+            color: #F5F6FA;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        [data-theme="dark"] .form-label {
+            color: #F5F6FA;
+        }
+        [data-theme="dark"] .form-input {
+            background: #202D40;
+            border-color: #303D50;
+            color: #F5F6FA;
+        }
+        [data-theme="dark"] .form-input:focus {
+            border-color: #FF4056;
+            background: #1c2738;
+        }
+        [data-theme="dark"] .toggle-pwd-btn {
+            color: #AAB5C5;
+        }
+        [data-theme="dark"] .remember-label,
+        [data-theme="dark"] .switch-link {
+            color: #AAB5C5;
+        }
+        [data-theme="dark"] .divider {
+            color: #303D50;
+        }
+        [data-theme="dark"] .divider::before,
+        [data-theme="dark"] .divider::after {
+            background: #303D50;
         }
 
         /* ─── Responsive ──────────────────────────────────── */

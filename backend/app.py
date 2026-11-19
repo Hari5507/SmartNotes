@@ -19,7 +19,7 @@ import subprocess
 import urllib.request
 import tempfile
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta
 
 try:
     from youtube_transcript_api import YouTubeTranscriptApi
@@ -55,13 +55,15 @@ CORS(app, supports_credentials=True)
 # AUTH & DB CONFIGURATION
 # =========================================
 
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', secrets.token_hex(32))
+# Permanent stable secret key fallback to prevent invalidating user sessions across restarts / gunicorn workers
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'smartnotes-production-super-secret-key-32bytes-auth-hash-2026'
 db_path = os.path.join(BASE_DIR, 'smartnotes.db').replace('\\', '/')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['REMEMBER_COOKIE_DURATION'] = 2592000  # 30 days
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -70,7 +72,7 @@ login_manager.login_message = None
 
 
 # =========================================
-# USER MODEL
+# USER & DOCUMENT MODELS
 # =========================================
 
 class User(UserMixin, db.Model):
@@ -86,6 +88,45 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+
+class Document(db.Model):
+    __tablename__ = 'documents'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+    file_type = db.Column(db.String(50), default='pdf')  # 'pdf', 'audio', 'youtube'
+    pages = db.Column(db.Integer, default=1)
+    extracted_text = db.Column(db.Text, nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+    summary = db.Column(db.Text, nullable=True)
+    key_points = db.Column(db.Text, nullable=True)
+    flashcards = db.Column(db.Text, nullable=True)
+    practice_questions = db.Column(db.Text, nullable=True)
+    mindmap = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('documents', lazy=True, cascade='all, delete-orphan'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'filename': self.filename,
+            'name': self.filename,
+            'file_type': self.file_type,
+            'type': self.file_type,
+            'pages': self.pages,
+            'extracted_text': self.extracted_text,
+            'text': self.extracted_text,
+            'notes': self.notes,
+            'summary': self.summary,
+            'key_points': self.key_points,
+            'flashcards': self.flashcards,
+            'practice_questions': self.practice_questions,
+            'mindmap': self.mindmap,
+            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else ''
+        }
 
 
 @login_manager.user_loader
@@ -280,14 +321,89 @@ DOCUMENT CONTENT:
 
 def build_practice_questions_prompt(text):
     return f"""
-You are SmartNotes, an AI study assistant.
-Create a fast practice quiz:
-1. 4 Multiple Choice Questions (A, B, C, D) with Correct Answer & 1-line explanation.
-2. 2 Conceptual Short-Answer Questions with model answer.
+You are SmartNotes, an elite AI study assistant.
+Generate an interactive multiple-choice practice quiz (4 to 6 questions) based on this lecture content.
+
+Format your output as a RAW JSON array of objects.
+Each object must have the following exact schema:
+[
+  {{
+    "id": 1,
+    "question": "Clear multiple choice question text?",
+    "options": [
+      "First option",
+      "Second option",
+      "Third option",
+      "Fourth option"
+    ],
+    "correct": 0,
+    "correct_letter": "A",
+    "explanation": "Clear explanation of why this option is correct."
+  }}
+]
+
+RULES:
+1. "correct" MUST be the 0-based integer index of the correct answer (0, 1, 2, or 3).
+2. "correct_letter" MUST be the matching letter ("A", "B", "C", or "D").
+3. "options" MUST be a list of exactly 4 strings.
+4. "explanation" MUST be 1-2 sentences explaining why the correct answer is right.
+5. Output ONLY the raw JSON array. Do not wrap in markdown code blocks, do not include any preamble or extra text.
 
 DOCUMENT CONTENT:
 {text[:8000]}
 """
+
+
+def parse_practice_questions_json(result_text):
+    """
+    Safely extracts and validates practice quiz JSON array from AI output.
+    Handles raw JSON, markdown-fenced json (```json ... ```), and string variants.
+    """
+    if not result_text:
+        return []
+    cleaned = result_text.strip()
+    # Strip markdown code fences if model enclosed in ```json ... ```
+    if "```" in cleaned:
+        cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+    # Find JSON array
+    json_match = re.search(r"\[\s*\{.*\}\s*\]", cleaned, re.DOTALL)
+    if json_match:
+        cleaned = json_match.group(0)
+    try:
+        data = json.loads(cleaned)
+        if isinstance(data, list):
+            normalized = []
+            for idx, q in enumerate(data):
+                if isinstance(q, dict) and "question" in q and "options" in q:
+                    options = q.get("options", [])
+                    if isinstance(options, list) and len(options) >= 2:
+                        correct = q.get("correct", 0)
+                        if isinstance(correct, str):
+                            if correct.upper() in ["A", "B", "C", "D"]:
+                                correct = ord(correct.upper()) - ord("A")
+                            else:
+                                try:
+                                    correct = int(correct)
+                                except Exception:
+                                    correct = 0
+                        correct_letter = q.get("correct_letter")
+                        if not correct_letter:
+                            letters = ["A", "B", "C", "D"]
+                            correct_letter = letters[correct] if 0 <= correct < len(letters) else "A"
+                        normalized.append({
+                            "id": q.get("id", idx + 1),
+                            "question": q.get("question", ""),
+                            "options": options[:4],
+                            "correct": correct if 0 <= correct < len(options) else 0,
+                            "correct_letter": correct_letter,
+                            "explanation": q.get("explanation", "Correct answer based on the lecture material.")
+                        })
+            if normalized:
+                return normalized
+    except Exception as err:
+        print(f"Notice: practice questions JSON parse note: {err}")
+    return []
 
 def build_mindmap_prompt(text):
     return f"""
@@ -343,6 +459,7 @@ def api_register():
     user.set_password(password)
     db.session.add(user)
     db.session.commit()
+    session.permanent = True
     login_user(user, remember=True)
     return jsonify({'success': True, 'user': {'id': user.id, 'name': user.name, 'email': user.email}}), 201
 
@@ -352,10 +469,11 @@ def api_login():
     data = request.get_json(silent=True) or {}
     email = data.get('email', '').strip().lower()
     password = data.get('password', '')
-    remember = data.get('remember', False)
+    remember = data.get('remember', True)
     user = User.query.filter_by(email=email).first()
     if not user or not user.check_password(password):
         return jsonify({'error': 'Incorrect email or password.'}), 401
+    session.permanent = True
     login_user(user, remember=remember)
     return jsonify({'success': True, 'user': {'id': user.id, 'name': user.name, 'email': user.email}})
 
@@ -371,6 +489,98 @@ def api_me():
     if current_user.is_authenticated:
         return jsonify({'authenticated': True, 'user': {'id': current_user.id, 'name': current_user.name, 'email': current_user.email}})
     return jsonify({'authenticated': False}), 401
+
+
+# =========================================
+# DOCUMENT MANAGEMENT ROUTES (USER ISOLATED)
+# =========================================
+
+@app.route('/api/documents', methods=['GET'])
+@login_required
+def get_user_documents():
+    """Return all documents owned by current_user, newest first."""
+    docs = Document.query.filter_by(user_id=current_user.id).order_by(Document.created_at.desc()).all()
+    return jsonify({
+        'success': True,
+        'documents': [doc.to_dict() for doc in docs]
+    })
+
+
+@app.route('/api/documents/<int:doc_id>', methods=['GET'])
+@login_required
+def get_single_document(doc_id):
+    doc = Document.query.filter_by(id=doc_id, user_id=current_user.id).first()
+    if not doc:
+        return jsonify({'error': 'Document not found or access denied.'}), 404
+    return jsonify({'success': True, 'document': doc.to_dict()})
+
+
+@app.route('/api/documents', methods=['POST'])
+@login_required
+def save_or_update_document():
+    data = request.get_json(silent=True) or {}
+    filename = data.get('filename') or data.get('name') or 'Untitled Lecture'
+    file_type = data.get('file_type') or data.get('type') or 'pdf'
+    pages = int(data.get('pages', 1))
+    extracted_text = data.get('extracted_text') or data.get('text') or ''
+    notes = data.get('notes') or ''
+    summary = data.get('summary') or ''
+    key_points = data.get('key_points') or ''
+    flashcards = data.get('flashcards') or ''
+    practice_questions = data.get('practice_questions') or ''
+    mindmap = data.get('mindmap') or ''
+
+    # Check if a document with this filename already exists for this user
+    doc = Document.query.filter_by(user_id=current_user.id, filename=filename).first()
+    if doc:
+        if extracted_text: doc.extracted_text = extracted_text
+        if pages: doc.pages = pages
+        if notes: doc.notes = notes
+        if summary: doc.summary = summary
+        if key_points: doc.key_points = key_points
+        if flashcards: doc.flashcards = flashcards
+        if practice_questions: doc.practice_questions = practice_questions
+        if mindmap: doc.mindmap = mindmap
+    else:
+        doc = Document(
+            user_id=current_user.id,
+            filename=filename,
+            file_type=file_type,
+            pages=pages,
+            extracted_text=extracted_text,
+            notes=notes,
+            summary=summary,
+            key_points=key_points,
+            flashcards=flashcards,
+            practice_questions=practice_questions,
+            mindmap=mindmap
+        )
+        db.session.add(doc)
+
+    db.session.commit()
+    return jsonify({'success': True, 'document': doc.to_dict()}), 201
+
+
+@app.route('/api/documents/<int:doc_id>', methods=['DELETE'])
+@login_required
+def delete_document(doc_id):
+    doc = Document.query.filter_by(id=doc_id, user_id=current_user.id).first()
+    if not doc:
+        return jsonify({'error': 'Document not found.'}), 404
+    db.session.delete(doc)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Document deleted.'})
+
+
+@app.route('/api/documents/by-name/<filename>', methods=['DELETE'])
+@login_required
+def delete_document_by_name(filename):
+    doc = Document.query.filter_by(filename=filename, user_id=current_user.id).first()
+    if not doc:
+        return jsonify({'error': 'Document not found.'}), 404
+    db.session.delete(doc)
+    db.session.commit()
+    return jsonify({'success': True, 'message': f'Document {filename} deleted.'})
 
 
 # =========================================
@@ -423,12 +633,29 @@ def upload_file():
                 if t:
                     extracted_text += t + "\n"
 
+            # Persist document record in SQLite database isolated to current user
+            doc = Document.query.filter_by(user_id=current_user.id, filename=filename).first()
+            if not doc:
+                doc = Document(
+                    user_id=current_user.id,
+                    filename=filename,
+                    file_type="pdf",
+                    pages=len(reader.pages),
+                    extracted_text=extracted_text
+                )
+                db.session.add(doc)
+            else:
+                doc.pages = len(reader.pages)
+                doc.extracted_text = extracted_text
+            db.session.commit()
+
             return jsonify({
                 "message": "PDF uploaded successfully!",
                 "filename": filename,
                 "pages": len(reader.pages),
                 "text": extracted_text,
-                "type": "pdf"
+                "type": "pdf",
+                "document_id": doc.id
             })
         except Exception as e:
             return jsonify({"error": f"Could not read PDF: {str(e)}"}), 500
@@ -518,7 +745,9 @@ def ai_practice_questions():
     result, error = gemini_generate(prompt)
     if error:
         return jsonify({"error": error}), 503
-    return jsonify({"success": True, "result": result})
+
+    questions = parse_practice_questions_json(result)
+    return jsonify({"success": True, "questions": questions, "result": result})
 
 
 @app.route("/ai/mindmap", methods=["POST"])
@@ -568,6 +797,8 @@ def ai_unified_tool():
             response_data["flashcards"] = json.loads(cleaned)
         except Exception:
             pass
+    elif tool == "practice_questions":
+        response_data["questions"] = parse_practice_questions_json(result)
 
     return jsonify(response_data)
 
@@ -662,12 +893,30 @@ STEP 2 — ORGANIZED STUDY NOTES:
                 if not transcript_text:
                     transcript_text = "(Audio transcript processed into study notes below)"
 
+                # Persist document record in SQLite database isolated to current user
+                doc = Document.query.filter_by(user_id=current_user.id, filename=filename).first()
+                if not doc:
+                    doc = Document(
+                        user_id=current_user.id,
+                        filename=filename,
+                        file_type="audio",
+                        pages=1,
+                        extracted_text=transcript_text,
+                        notes=notes_text
+                    )
+                    db.session.add(doc)
+                else:
+                    doc.extracted_text = transcript_text
+                    doc.notes = notes_text
+                db.session.commit()
+
                 return jsonify({
                     "success": True,
                     "filename": filename,
                     "transcript": transcript_text,
                     "notes": notes_text,
-                    "source": "audio"
+                    "source": "audio",
+                    "document_id": doc.id
                 })
 
             except Exception as e:
@@ -784,13 +1033,31 @@ FORMAT WITH CLEAR MARKDOWN:
     if error:
         return jsonify({"error": error}), 503
 
+    # Persist document record in SQLite database isolated to current user
+    doc = Document.query.filter_by(user_id=current_user.id, filename=video_title).first()
+    if not doc:
+        doc = Document(
+            user_id=current_user.id,
+            filename=video_title,
+            file_type="youtube",
+            pages=1,
+            extracted_text=content_for_ai,
+            notes=result
+        )
+        db.session.add(doc)
+    else:
+        doc.extracted_text = content_for_ai
+        doc.notes = result
+    db.session.commit()
+
     return jsonify({
         "success": True,
         "video_id": video_id,
         "title": video_title,
         "transcript": transcript_text[:3000] if transcript_text else f"Lecture: {video_title}\nInstructor: {author}",
         "notes": result,
-        "source": "youtube"
+        "source": "youtube",
+        "document_id": doc.id
     })
 
 
