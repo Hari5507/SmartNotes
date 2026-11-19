@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartNotes – Sign In</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: #f5f8fd;
+            min-height: 100vh;
+            color: #071b36;
+        }
+
+        /* ─── Layout ─────────────────────────────────────── */
+        .auth-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
+        }
+
+        /* ─── Left Panel ─────────────────────────────────── */
+        .left-panel {
+            background: linear-gradient(145deg, #071b36 0%, #0d2d5a 60%, #0f3570 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 60px 56px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* background decorative circles */
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            width: 420px; height: 420px;
+            border-radius: 50%;
+            background: rgba(237,36,56,0.08);
+            top: -100px; right: -120px;
+            pointer-events: none;
+        }
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            width: 280px; height: 280px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            bottom: -60px; left: -80px;
+            pointer-events: none;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 48px;
+            text-decoration: none;
+        }
+        .brand-logo-text {
+            font-size: 22px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .brand-logo-text span { color: #ED2438; }
+
+        .left-heading {
+            font-size: clamp(28px, 3vw, 42px);
+            font-weight: 800;
+            line-height: 1.18;
+            letter-spacing: -1px;
+            margin-bottom: 18px;
+            max-width: 420px;
+        }
+        .left-heading em { color: #ED2438; font-style: normal; }
+
+        .left-subtitle {
+            font-size: 16px;
+            line-height: 1.65;
+            color: rgba(255,255,255,0.72);
+            max-width: 380px;
+            margin-bottom: 40px;
+        }
+
+        .feature-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 56px;
+        }
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.88);
+        }
+        .feature-list li .check {
+            width: 24px; height: 24px;
+            background: rgba(237,36,56,0.18);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .feature-list li .check svg { width: 13px; height: 13px; }
+
+        /* ─── Decorative illustration ─────────────────────── */
+        .illustration {
+            position: relative;
+            width: 100%;
+            max-width: 360px;
+            height: 170px;
+        }
+
+        /* Books */
+        .book {
+            position: absolute;
+            bottom: 0;
+            border-radius: 4px 2px 2px 4px;
+        }
+        .book-1 { width: 44px; height: 120px; background: #ED2438; left: 0; }
+        .book-2 { width: 36px; height: 100px; background: #2563eb; left: 50px; }
+        .book-3 { width: 48px; height: 130px; background: #16a34a; left: 92px; }
+        .book-4 { width: 32px; height: 90px; background: #d97706; left: 148px; }
+        .book-5 { width: 40px; height: 115px; background: #7c3aed; left: 186px; }
+        .book-6 { width: 36px; height: 95px; background: #0891b2; left: 232px; }
+        .book-7 { width: 44px; height: 125px; background: #be185d; left: 274px; }
+        .book-spine {
+            position: absolute;
+            top: 0; right: 0;
+            width: 6px; height: 100%;
+            background: rgba(0,0,0,0.18);
+            border-radius: 0 2px 2px 0;
+        }
+        .book-title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%) rotate(-90deg);
+            font-size: 8px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.7);
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+        }
+
+        /* Floating notes */
+        .float-note {
+            position: absolute;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 10px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.85);
+            backdrop-filter: blur(4px);
+            white-space: nowrap;
+        }
+        .note-1 { top: 10px; left: 220px; }
+        .note-2 { top: 50px; left: 60px; }
+
+        /* ─── Right Panel ─────────────────────────────────── */
+        .right-panel {
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 40px;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .form-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #071b36;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+        .form-subtitle {
+            font-size: 14px;
+            color: #6b7a99;
+            margin-bottom: 32px;
+        }
+
+        /* Tab switcher */
+        .tab-bar {
+            display: flex;
+            background: #f5f8fd;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 32px;
+            gap: 4px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7a99;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: #fff;
+            color: #071b36;
+            box-shadow: 0 1px 6px rgba(7,27,54,0.10);
+        }
+        .tab-btn:hover:not(.active) { color: #071b36; }
+
+        /* Form panel */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Field groups */
+        .field-group {
+            margin-bottom: 18px;
+        }
+        .field-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3d4f6b;
+            margin-bottom: 7px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+        .input-wrap input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #d8dde8;
+            border-radius: 10px;
+            font-size: 16px;
+            color: #071b36;
+            background: #fff;
+            transition: border-color 0.18s, box-shadow 0.18s;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .input-wrap input:focus {
+            border-color: #ED2438;
+            box-shadow: 0 0 0 3px rgba(237,36,56,0.10);
+        }
+        .input-wrap input::placeholder { color: #b0bace; }
+        .input-wrap input.pw-input { padding-right: 48px; }
+
+        .pw-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9aabcb;
+            padding: 2px;
+            display: flex;
+            align-items: center;
+            transition: color 0.15s;
+        }
+        .pw-toggle:hover { color: #ED2438; }
+        .pw-toggle svg { width: 20px; height: 20px; pointer-events: none; }
+
+        /* Remember + forgot */
+        .row-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .remember-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .remember-wrap input[type=checkbox] {
+            width: 16px; height: 16px;
+            accent-color: #ED2438;
+            cursor: pointer;
+        }
+        .remember-wrap span {
+            font-size: 13px;
+            color: #3d4f6b;
+            font-weight: 500;
+        }
+        .forgot-link {
+            font-size: 13px;
+            color: #ED2438;
+            font-weight: 600;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        .forgot-link:hover { text-decoration: underline; }
+
+        /* Primary button */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #ED2438;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.1px;
+            margin-bottom: 24px;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: #c81d2f;
+            box-shadow: 0 4px 18px rgba(237,36,56,0.28);
+            transform: translateY(-1px);
+        }
+        .btn-primary:active:not(:disabled) { transform: translateY(0); }
+        .btn-primary:disabled {
+            opacity: 0.72;
+            cursor: not-allowed;
+        }
+
+        /* Loading spinner */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+        .btn-primary.loading .spinner { display: block; }
+        .btn-primary.loading .btn-label { display: none; }
+
+        /* Switch tab link */
+        .switch-link {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7a99;
+        }
+        .switch-link a, .switch-link button {
+            color: #ED2438;
+            font-weight: 700;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .switch-link a:hover, .switch-link button:hover { text-decoration: underline; }
+
+        /* Error message */
+        .error-msg {
+            display: none;
+            background: #fff0f1;
+            border: 1px solid #fcc;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #c0162a;
+            font-weight: 500;
+            margin-bottom: 18px;
+            align-items: center;
+            gap: 8px;
+        }
+        .error-msg.visible {
+            display: flex;
+        }
+        .error-msg svg { flex-shrink: 0; }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 0 20px;
+            color: #c0cce0;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e8edf5;
+        }
+
+        /* ─── Responsive ──────────────────────────────────── */
+        @media (max-width: 768px) {
+            .auth-wrapper {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+            .left-panel {
+                padding: 32px 28px 36px;
+                align-items: center;
+                text-align: center;
+            }
+            .left-heading { font-size: 26px; max-width: 100%; }
+            .left-subtitle { font-size: 14px; max-width: 100%; }
+            .feature-list li { justify-content: center; }
+            .illustration { max-width: 260px; height: 130px; margin: 0 auto; }
+            .left-panel::before { width: 240px; height: 240px; }
+            .brand-logo { margin-bottom: 28px; }
+            .feature-list { margin-bottom: 32px; }
+            .right-panel { padding: 32px 24px 48px; }
+        }
+
+        @media (max-width: 400px) {
+            .left-panel { padding: 24px 18px 28px; }
+            .right-panel { padding: 24px 16px 36px; }
+            .left-heading { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-wrapper">
+
+    <!-- ══════════════ LEFT PANEL ══════════════ -->
+    <div class="left-panel">
+
+        <!-- Logo -->
+        <a class="brand-logo" href="/">
+            <!-- SmartNotes SVG logo -->
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="36" height="36" rx="9" fill="#ED2438"/>
+                <path d="M9 12h18M9 18h14M9 24h10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="27" cy="24" r="4" fill="#fff" fill-opacity="0.9"/>
+                <path d="M25.5 24l1 1 2-2" stroke="#ED2438" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="brand-logo-text">Smart<span>Notes</span></span>
+        </a>
+
+        <!-- Heading -->
+        <h1 class="left-heading">Learn <em>Smarter</em>,<br>Not Harder.</h1>
+        <p class="left-subtitle">AI-powered notes from any lecture, PDF, or YouTube video — in seconds.</p>
+
+        <!-- Features -->
+        <ul class="feature-list">
+            <li>
+                <span class="check">
+                    <svg viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#ED2438" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                Smart Notes
+            </li>
+            <li>
+                <span class="check">
+                    <svg viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#ED2438" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                Key Points
+            </li>
+            <li>
+                <span class="check">
+                    <svg viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#ED2438" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                Flashcards
+            </li>
+            <li>
+                <span class="check">
+                    <svg viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#ED2438" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                Practice Questions
+            </li>
+            <li>
+                <span class="check">
+                    <svg viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3 3 6-6" stroke="#ED2438" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                Mind Maps
+            </li>
+        </ul>
+
+        <!-- Decorative book illustration -->
+        <div class="illustration" aria-hidden="true">
+            <!-- floating notes -->
+            <span class="float-note note-1">✦ AI Summary</span>
+            <span class="float-note note-2">📌 Flashcard</span>
+
+            <!-- Books -->
+            <div class="book book-1"><div class="book-spine"></div><span class="book-title">Physics</span></div>
+            <div class="book book-2"><div class="book-spine"></div><span class="book-title">Math</span></div>
+            <div class="book book-3"><div class="book-spine"></div><span class="book-title">History</span></div>
+            <div class="book book-4"><div class="book-spine"></div><span class="book-title">CS</span></div>
+            <div class="book book-5"><div class="book-spine"></div><span class="book-title">Chem</span></div>
+            <div class="book book-6"><div class="book-spine"></div><span class="book-title">Bio</span></div>
+            <div class="book book-7"><div class="book-spine"></div><span class="book-title">Econ</span></div>
+        </div>
+
+    </div><!-- /left-panel -->
+
+    <!-- ══════════════ RIGHT PANEL ══════════════ -->
+    <div class="right-panel">
+        <div class="form-container">
+
+            <h2 class="form-title">Welcome back</h2>
+            <p class="form-subtitle">Sign in to your account or create a new one.</p>
+
+            <!-- Tab bar -->
+            <div class="tab-bar" role="tablist">
+                <button class="tab-btn active" id="tab-signin" role="tab" aria-selected="true"
+                        onclick="switchTab('signin')">Sign In</button>
+                <button class="tab-btn" id="tab-register" role="tab" aria-selected="false"
+                        onclick="switchTab('register')">Create Account</button>
+            </div>
+
+            <!-- ── Sign In Panel ── -->
+            <div class="tab-panel active" id="panel-signin" role="tabpanel">
+
+                <div class="error-msg" id="signInError" role="alert">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#c0162a" stroke-width="1.5"/><path d="M8 5v3.5M8 11h.01" stroke="#c0162a" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <span id="signInErrorText"></span>
+                </div>
+
+                <form id="signInForm" onsubmit="handleSignIn(event)" novalidate>
+
+                    <div class="field-group">
+                        <label for="signInEmail">Email Address</label>
+                        <div class="input-wrap">
+                            <input type="email" id="signInEmail" name="email"
+                                   placeholder="you@example.com" autocomplete="email" required>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="signInPassword">Password</label>
+                        <div class="input-wrap">
+                            <input type="password" id="signInPassword" name="password"
+                                   class="pw-input" placeholder="Enter your password"
+                                   autocomplete="current-password" required>
+                            <button type="button" class="pw-toggle" id="signInPwBtn"
+                                    onclick="togglePw('signInPassword', this)"
+                                    aria-label="Show password">
+                                <!-- eye icon -->
+                                <svg id="signInEye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row-flex">
+                        <label class="remember-wrap">
+                            <input type="checkbox" id="rememberMe" name="remember">
+                            <span>Remember me</span>
+                        </label>
+                        <button type="button" class="forgot-link"
+                                onclick="alert('Password reset link sent to your email.')">
+                            Forgot password?
+                        </button>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="signInBtn">
+                        <span class="spinner"></span>
+                        <span class="btn-label">Sign In</span>
+                    </button>
+
+                </form>
+
+                <p class="switch-link">
+                    Don't have an account?
+                    <button onclick="switchTab('register')">Create Account</button>
+                </p>
+
+            </div><!-- /panel-signin -->
+
+            <!-- ── Create Account Panel ── -->
+            <div class="tab-panel" id="panel-register" role="tabpanel">
+
+                <div class="error-msg" id="regError" role="alert">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#c0162a" stroke-width="1.5"/><path d="M8 5v3.5M8 11h.01" stroke="#c0162a" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <span id="regErrorText"></span>
+                </div>
+
+                <form id="registerForm" onsubmit="handleRegister(event)" novalidate>
+
+                    <div class="field-group">
+                        <label for="regName">Full Name</label>
+                        <div class="input-wrap">
+                            <input type="text" id="regName" name="name"
+                                   placeholder="Jane Smith" autocomplete="name" required>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="regEmail">Email Address</label>
+                        <div class="input-wrap">
+                            <input type="email" id="regEmail" name="email"
+                                   placeholder="you@example.com" autocomplete="email" required>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="regPassword">Password</label>
+                        <div class="input-wrap">
+                            <input type="password" id="regPassword" name="password"
+                                   class="pw-input" placeholder="Min. 8 characters"
+                                   autocomplete="new-password" minlength="8" required>
+                            <button type="button" class="pw-toggle" id="regPwBtn"
+                                    onclick="togglePw('regPassword', this)"
+                                    aria-label="Show password">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="field-group" style="margin-bottom: 28px;">
+                        <label for="regConfirm">Confirm Password</label>
+                        <div class="input-wrap">
+                            <input type="password" id="regConfirm" name="confirm"
+                                   class="pw-input" placeholder="Repeat your password"
+                                   autocomplete="new-password" required>
+                            <button type="button" class="pw-toggle" id="regConfirmBtn"
+                                    onclick="togglePw('regConfirm', this)"
+                                    aria-label="Show password">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="regBtn">
+                        <span class="spinner"></span>
+                        <span class="btn-label">Create Account</span>
+                    </button>
+
+                </form>
+
+                <p class="switch-link">
+                    Already have an account?
+                    <button onclick="switchTab('signin')">Sign In</button>
+                </p>
+
+            </div><!-- /panel-register -->
+
+        </div><!-- /form-container -->
+    </div><!-- /right-panel -->
+
+</div><!-- /auth-wrapper -->
+
+<script>
+    /* ─────────────────────────────────────────
+       Tab switching
+    ───────────────────────────────────────── */
+    function switchTab(tab) {
+        const isSignin = tab === 'signin';
+
+        // panels
+        document.getElementById('panel-signin').classList.toggle('active', isSignin);
+        document.getElementById('panel-register').classList.toggle('active', !isSignin);
+
+        // buttons
+        document.getElementById('tab-signin').classList.toggle('active', isSignin);
+        document.getElementById('tab-register').classList.toggle('active', !isSignin);
+        document.getElementById('tab-signin').setAttribute('aria-selected', isSignin);
+        document.getElementById('tab-register').setAttribute('aria-selected', !isSignin);
+
+        // Update heading / subtitle
+        const title = document.querySelector('.form-title');
+        const subtitle = document.querySelector('.form-subtitle');
+        if (isSignin) {
+            title.textContent = 'Welcome back';
+            subtitle.textContent = 'Sign in to continue to SmartNotes.';
+        } else {
+            title.textContent = 'Create your account';
+            subtitle.textContent = 'Start learning smarter today — it\'s free.';
+        }
+
+        // Clear errors on switch
+        clearError('signInError');
+        clearError('regError');
+    }
+
+    /* ─────────────────────────────────────────
+       Show / hide password toggle
+    ───────────────────────────────────────── */
+    // SVG icons
+    const EYE_OPEN = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    const EYE_CLOSED = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+
+    function togglePw(id, btn) {
+        const input = document.getElementById(id);
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        btn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+        btn.querySelector('svg').innerHTML = isHidden ? EYE_CLOSED : EYE_OPEN;
+    }
+
+    /* ─────────────────────────────────────────
+       Error helpers
+    ───────────────────────────────────────── */
+    function showError(id, msg) {
+        const el = document.getElementById(id);
+        const textEl = document.getElementById(id + 'Text');
+        if (textEl) textEl.textContent = msg;
+        el.classList.add('visible');
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function clearError(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('visible');
+    }
+
+    /* ─────────────────────────────────────────
+       Button loading state
+    ───────────────────────────────────────── */
+    function setLoading(btnId, loading) {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.disabled = loading;
+        btn.classList.toggle('loading', loading);
+    }
+
+    /* ─────────────────────────────────────────
+       Sign In handler
+    ───────────────────────────────────────── */
+    async function handleSignIn(e) {
+        e.preventDefault();
+        const email    = document.getElementById('signInEmail').value.trim();
+        const password = document.getElementById('signInPassword').value;
+        const remember = document.getElementById('rememberMe').checked;
+
+        setLoading('signInBtn', true);
+        clearError('signInError');
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, remember })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                window.location.href = '/';
+            } else {
+                showError('signInError', data.error || 'Login failed. Please try again.');
+            }
+        } catch (err) {
+            showError('signInError', 'Network error. Please check your connection and try again.');
+        } finally {
+            setLoading('signInBtn', false);
+        }
+    }
+
+    /* ─────────────────────────────────────────
+       Register handler
+    ───────────────────────────────────────── */
+    async function handleRegister(e) {
+        e.preventDefault();
+        const name     = document.getElementById('regName').value.trim();
+        const email    = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const confirm  = document.getElementById('regConfirm').value;
+
+        clearError('regError');
+
+        if (!name)                     return showError('regError', 'Please enter your full name.');
+        if (!email)                    return showError('regError', 'Please enter your email address.');
+        if (password.length < 8)       return showError('regError', 'Password must be at least 8 characters.');
+        if (password !== confirm)      return showError('regError', 'Passwords do not match.');
+
+        setLoading('regBtn', true);
+
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                window.location.href = '/';
+            } else {
+                showError('regError', data.error || 'Registration failed. Please try again.');
+            }
+        } catch (err) {
+            showError('regError', 'Network error. Please check your connection and try again.');
+        } finally {
+            setLoading('regBtn', false);
+        }
+    }
+
+    /* ─────────────────────────────────────────
+       Check if already authenticated on load
+    ───────────────────────────────────────── */
+    async function checkAuth() {
+        try {
+            const res = await fetch('/api/auth/me');
+            if (res.ok) window.location.href = '/';
+        } catch (e) { /* not logged in, stay here */ }
+    }
+    checkAuth();
+
+    /* ─────────────────────────────────────────
+       Handle ?tab= URL parameter
+    ───────────────────────────────────────── */
+    (function () {
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get('tab');
+        if (tab === 'register') switchTab('register');
+    })();
+</script>
+
+</body>
+</html>

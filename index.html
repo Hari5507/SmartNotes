@@ -380,7 +380,7 @@
         </div>
         <h2>SmartNotes</h2>
     </div>
-    <button class="mobile-user-btn" onclick="openLoginModal()" aria-label="Account / Login">
+    <button class="mobile-user-btn" onclick="logoutUser()" aria-label="Logout">
         <div class="student-avatar" id="mobileAvatar">H</div>
     </button>
 </header>
@@ -435,7 +435,7 @@
         <button class="nav-item" onclick="openFeatureFromNav('practice_questions')">? <span>Practice Questions</span></button>
         <button class="nav-item" onclick="openFeatureFromNav('mindmap')">⌘ <span>Mind Maps</span></button>
         <button class="nav-item" onclick="openHistoryModal()">◷ <span>History</span></button>
-        <button class="nav-item" onclick="openLoginModal()">👤 <span>Login / Account</span></button>
+        <button class="nav-item" onclick="logoutUser()">🚪 <span>Logout</span></button>
     </nav>
 
     <div class="sidebar-card">
@@ -444,12 +444,12 @@
         <p>Turn your lectures into clear, organized notes with AI.</p>
     </div>
 
-    <!-- STUDENT PROFILE (CLICKABLE TO LOGIN / PROFILE) -->
-    <div class="student-profile" onclick="openLoginModal()" style="cursor:pointer;" title="Click to view account / sign in">
+    <!-- STUDENT PROFILE -->
+    <div class="student-profile" style="cursor:default;" title="Logged in account">
         <div class="student-avatar" id="sidebarAvatar">H</div>
         <div>
-            <strong id="sidebarStudentName">Hari Prasad</strong>
-            <span id="sidebarStudentEmail">student@snist.ac.in</span>
+            <strong id="sidebarStudentName">Loading...</strong>
+            <span id="sidebarStudentEmail"></span>
         </div>
     </div>
 </aside>
@@ -473,7 +473,7 @@
                 ♧
                 <i></i>
             </button>
-            <div class="profile" id="topbarAvatar" onclick="openLoginModal()" style="cursor:pointer;" title="Account / Login">H</div>
+            <div class="profile" id="topbarAvatar" style="cursor:pointer;" title="Logged in" onclick="logoutUser()">H</div>
         </div>
     </header>
 
@@ -484,8 +484,17 @@
 
             <section class="hero">
                 <div>
-                    <h1>Welcome to <span>SmartNotes</span> 👋</h1>
-                    <p>Upload your lectures, audio/music files, recordings or YouTube links to get instant AI study notes.</p>
+                    <div class="hero-badge">
+                        <span class="badge-dot"></span>
+                        <span>AI Lecture Intelligence Platform</span>
+                    </div>
+                    <h1>Turn Lectures into <span>Clarity & Knowledge</span></h1>
+                    <p>Instant AI transcription, structured study notes, active-recall flashcards, and interactive mind maps from any lecture PDF, audio recording, or YouTube link.</p>
+                    <div class="hero-pills">
+                        <span class="hero-pill">⚡ Real-time Extraction</span>
+                        <span class="hero-pill">🧠 5 AI Study Tools</span>
+                        <span class="hero-pill">🔒 User-Isolated & Secure</span>
+                    </div>
                 </div>
             </section>
 
@@ -601,6 +610,7 @@
                     <h3>AI Notes</h3>
                     <p>Get structured and organized notes</p>
                 </div>
+                <span class="feature-tag">01 • Notes</span>
             </div>
             <div class="mini-notes">
                 <strong>Lecture Notes</strong>
@@ -618,6 +628,7 @@
                     <h3>Key Points</h3>
                     <p>Important points extracted by AI</p>
                 </div>
+                <span class="feature-tag">02 • Points</span>
             </div>
             <div class="mini-notes bullets">
                 <strong>Key Points</strong>
@@ -635,6 +646,7 @@
                     <h3>Flashcards</h3>
                     <p>Active recall cards for quick revision</p>
                 </div>
+                <span class="feature-tag">03 • Recall</span>
             </div>
             <div class="flashcard-preview">
                 <span>What is Normalization<br>in DBMS?</span>
@@ -649,6 +661,7 @@
                     <h3>Practice Questions</h3>
                     <p>Get practice questions from your content</p>
                 </div>
+                <span class="feature-tag">04 • Quiz</span>
             </div>
             <div class="question-preview">
                 <strong>Q. What is a primary key?</strong>
@@ -665,6 +678,7 @@
                     <h3>Mind Maps</h3>
                     <p>Visual mind maps for better understanding</p>
                 </div>
+                <span class="feature-tag">05 • Visual</span>
             </div>
             <div class="mindmap-preview">
                 <svg class="mindmap-svg-lines" viewBox="0 0 280 160" preserveAspectRatio="none">
@@ -795,89 +809,6 @@
 </div>
 
 
-<!-- STUDENT LOGIN & ACCOUNT MODAL (FULL RESPONSIVE + SIGN IN / SIGN UP TABS) -->
-<div id="loginModal" class="modal-overlay" style="display:none;">
-  <div class="modal-box auth-modal-box">
-    <div class="modal-header">
-      <div class="modal-title-wrap">
-        <span class="auth-icon">🎓</span>
-        <div>
-          <h2 id="authModalHeaderTitle">Student Account</h2>
-          <small id="authModalSubtitle">Sign in to sync your study notes</small>
-        </div>
-      </div>
-      <button class="modal-close" onclick="closeLoginModal()" aria-label="Close modal">✕</button>
-    </div>
-    
-    <div class="auth-tabs">
-      <button type="button" class="auth-tab-btn active" id="tabSignInBtn" onclick="switchAuthTab('signin')">Sign In</button>
-      <button type="button" class="auth-tab-btn" id="tabSignUpBtn" onclick="switchAuthTab('signup')">Create Account</button>
-    </div>
-
-    <div class="modal-body auth-modal-body">
-      <!-- SIGN IN FORM -->
-      <form id="signInForm" onsubmit="handleSignInSubmit(event)">
-        <div class="form-group">
-          <label for="signInEmail">College Email</label>
-          <input type="email" id="signInEmail" class="form-control" placeholder="e.g. student@snist.ac.in" required>
-        </div>
-        <div class="form-group">
-          <div class="label-row">
-            <label for="signInPassword">Password</label>
-            <button type="button" class="btn-toggle-pw" onclick="togglePasswordVisibility('signInPassword', this)">👁️ Show</button>
-          </div>
-          <input type="password" id="signInPassword" class="form-control" placeholder="Enter your password" required>
-        </div>
-        <div class="form-options">
-          <label class="remember-label">
-            <input type="checkbox" id="rememberMe" checked> Remember me on this device
-          </label>
-        </div>
-        <button type="submit" class="btn-auth-primary">Sign In to SmartNotes</button>
-      </form>
-
-      <!-- SIGN UP FORM -->
-      <form id="signUpForm" onsubmit="handleSignUpSubmit(event)" style="display:none;">
-        <div class="form-group">
-          <label for="signUpName">Full Name</label>
-          <input type="text" id="signUpName" class="form-control" placeholder="e.g. Hari Prasad" required>
-        </div>
-        <div class="form-group">
-          <label for="signUpEmail">College Email</label>
-          <input type="email" id="signUpEmail" class="form-control" placeholder="e.g. student@snist.ac.in" required>
-        </div>
-        <div class="form-group">
-          <label for="signUpDepartment">Department / Branch</label>
-          <input type="text" id="signUpDepartment" class="form-control" placeholder="e.g. B.Tech Computer Science">
-        </div>
-        <div class="form-group">
-          <div class="label-row">
-            <label for="signUpPassword">Password</label>
-            <button type="button" class="btn-toggle-pw" onclick="togglePasswordVisibility('signUpPassword', this)">👁️ Show</button>
-          </div>
-          <input type="password" id="signUpPassword" class="form-control" placeholder="Create a secure password" required>
-        </div>
-        <button type="submit" class="btn-auth-primary" style="margin-top:10px;">Create Account</button>
-      </form>
-
-      <!-- CURRENT ACCOUNT STATUS (WHEN LOGGED IN) -->
-      <div id="authAccountStatus" style="margin-top:16px; padding:12px; background:#f0f5ff; border:1px solid #cbe0fc; border-radius:10px; font-size:12.5px; color:#1a457a; display:none;">
-        <strong>Logged in as:</strong> <span id="statusActiveUser">Hari Prasad</span><br>
-        <button type="button" onclick="logoutUser()" style="margin-top:8px; padding:4px 10px; background:#fff; border:1px solid #94b8e8; border-radius:6px; color:#c0152a; font-weight:600; font-size:12px; cursor:pointer;">🚪 Switch / Log Out</button>
-      </div>
-
-      <!-- BACKEND ARCHITECTURE NOTICE (HONORING AUTH INSTRUCTION) -->
-      <div style="margin-top:14px; padding:10px 12px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px; font-size:11.5px; line-height:1.5; color:#64748b;">
-        🔒 <strong>Auth Notice:</strong> Profile is stored in your secure local session. Multi-user server authentication requires SQLite table creation in <code>backend/app.py</code>.
-      </div>
-    </div>
-
-    <div class="auth-modal-footer">
-      <small id="authFooterHint">Need help? SmartNotes AI Study Assistant</small>
-      <button type="button" class="btn-auth-cancel" onclick="closeLoginModal()">Close</button>
-    </div>
-  </div>
-</div>
 
 
 <!-- MY NOTES / HISTORY MODAL -->
@@ -1079,132 +1010,66 @@ function openFeatureFromNav(toolName) {
 }
 
 /* =========================================
-   STUDENT PROFILE & AUTHENTICATION (MOBILE & DESKTOP)
+   STUDENT PROFILE & AUTHENTICATION
+   Real server-side auth via Flask-Login
 ========================================= */
-function loadStudentProfile() {
+
+// On page load: check auth, redirect to /login if not logged in
+(async function checkAuth() {
     try {
-        const stored = localStorage.getItem("smartnotes_user");
-        let name = "Hari Prasad";
-        let email = "student@snist.ac.in";
-        if (stored) {
-            const user = JSON.parse(stored);
-            name = user.name || name;
-            email = user.email || email;
+        const res = await fetch('/api/auth/me');
+        if (!res.ok) {
+            window.location.href = '/login';
+            return;
         }
-        document.getElementById("sidebarStudentName").textContent = name;
-        document.getElementById("sidebarStudentEmail").textContent = email;
-        const initial = name.charAt(0).toUpperCase();
-        if (document.getElementById("sidebarAvatar")) document.getElementById("sidebarAvatar").textContent = initial;
-        if (document.getElementById("topbarAvatar")) document.getElementById("topbarAvatar").textContent = initial;
-        if (document.getElementById("mobileAvatar")) document.getElementById("mobileAvatar").textContent = initial;
-        if (document.getElementById("statusActiveUser")) document.getElementById("statusActiveUser").textContent = `${name} (${email})`;
-        if (stored && document.getElementById("authAccountStatus")) {
-            document.getElementById("authAccountStatus").style.display = "block";
+        const data = await res.json();
+        if (data.authenticated && data.user) {
+            loadStudentProfile(data.user);
+        } else {
+            window.location.href = '/login';
         }
-    } catch(e) {}
-}
-
-function switchAuthTab(tab) {
-    const signInBtn = document.getElementById("tabSignInBtn");
-    const signUpBtn = document.getElementById("tabSignUpBtn");
-    const signInForm = document.getElementById("signInForm");
-    const signUpForm = document.getElementById("signUpForm");
-    const title = document.getElementById("authModalHeaderTitle");
-    const sub = document.getElementById("authModalSubtitle");
-
-    if (tab === 'signin') {
-        signInBtn.classList.add("active");
-        signUpBtn.classList.remove("active");
-        signInForm.style.display = "block";
-        signUpForm.style.display = "none";
-        title.textContent = "Student Sign In";
-        sub.textContent = "Access your saved notes and flashcards";
-    } else {
-        signUpBtn.classList.add("active");
-        signInBtn.classList.remove("active");
-        signUpForm.style.display = "block";
-        signInForm.style.display = "none";
-        title.textContent = "Create Student Account";
-        sub.textContent = "Start generating AI lecture notes today";
+    } catch(e) {
+        window.location.href = '/login';
     }
+})();
+
+function loadStudentProfile(user) {
+    if (!user) return;
+    const name = user.name || 'Student';
+    const email = user.email || '';
+    const initial = name.charAt(0).toUpperCase();
+
+    const sn = document.getElementById('sidebarStudentName');
+    const se = document.getElementById('sidebarStudentEmail');
+    const sa = document.getElementById('sidebarAvatar');
+    const ta = document.getElementById('topbarAvatar');
+    const ma = document.getElementById('mobileAvatar');
+
+    if (sn) sn.textContent = name;
+    if (se) se.textContent = email;
+    if (sa) sa.textContent = initial;
+    if (ta) ta.textContent = initial;
+    if (ma) ma.textContent = initial;
 }
 
+async function logoutUser() {
+    try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+    } catch(e) {}
+    window.location.href = '/login';
+}
+
+// Stubs kept so any existing HTML references don't break
+function openLoginModal() { window.location.href = '/login'; }
+function closeLoginModal() {}
+function switchAuthTab() {}
+function handleSignInSubmit(e) { e.preventDefault(); window.location.href = '/login'; }
+function handleSignUpSubmit(e) { e.preventDefault(); window.location.href = '/login'; }
 function togglePasswordVisibility(inputId, btn) {
     const input = document.getElementById(inputId);
     if (!input) return;
-    if (input.type === "password") {
-        input.type = "text";
-        btn.textContent = "🙈 Hide";
-    } else {
-        input.type = "password";
-        btn.textContent = "👁️ Show";
-    }
-}
-
-function openLoginModal() {
-    closeMobileSidebar();
-    const modal = document.getElementById("loginModal");
-    modal.style.display = "flex";
-    const user = JSON.parse(localStorage.getItem("smartnotes_user") || "{}");
-    if (user.email && document.getElementById("signInEmail")) {
-        document.getElementById("signInEmail").value = user.email;
-    }
-    if (user.name && document.getElementById("signUpName")) {
-        document.getElementById("signUpName").value = user.name;
-    }
-    if (user.email && document.getElementById("signUpEmail")) {
-        document.getElementById("signUpEmail").value = user.email;
-    }
-    if (user.department && document.getElementById("signUpDepartment")) {
-        document.getElementById("signUpDepartment").value = user.department;
-    }
-}
-
-function closeLoginModal() {
-    document.getElementById("loginModal").style.display = "none";
-}
-
-function handleSignInSubmit(e) {
-    e.preventDefault();
-    const email = document.getElementById("signInEmail").value.trim();
-    const stored = JSON.parse(localStorage.getItem("smartnotes_user") || "{}");
-    let name = stored.name || (email.split("@")[0].replace(/[._-]/g, ' ') || "Student");
-    name = name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-
-    const updated = {
-        name: stored.email === email && stored.name ? stored.name : name,
-        email: email,
-        department: stored.department || "Computer Science"
-    };
-    localStorage.setItem("smartnotes_user", JSON.stringify(updated));
-    loadStudentProfile();
-    closeLoginModal();
-    showMessage("✅ Signed in successfully as " + updated.name);
-}
-
-function handleSignUpSubmit(e) {
-    e.preventDefault();
-    const name = document.getElementById("signUpName").value.trim() || "Student";
-    const email = document.getElementById("signUpEmail").value.trim() || "student@snist.ac.in";
-    const department = document.getElementById("signUpDepartment").value.trim() || "Computer Science";
-
-    const user = { name, email, department };
-    localStorage.setItem("smartnotes_user", JSON.stringify(user));
-    loadStudentProfile();
-    closeLoginModal();
-    showMessage("🎉 Account created successfully! Welcome, " + name);
-}
-
-function logoutUser() {
-    localStorage.removeItem("smartnotes_user");
-    document.getElementById("sidebarStudentName").textContent = "Student";
-    document.getElementById("sidebarStudentEmail").textContent = "Not signed in";
-    if (document.getElementById("sidebarAvatar")) document.getElementById("sidebarAvatar").textContent = "S";
-    if (document.getElementById("topbarAvatar")) document.getElementById("topbarAvatar").textContent = "S";
-    if (document.getElementById("mobileAvatar")) document.getElementById("mobileAvatar").textContent = "S";
-    if (document.getElementById("authAccountStatus")) document.getElementById("authAccountStatus").style.display = "none";
-    closeLoginModal();
-    showMessage("ℹ️ You have signed out.");
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈 Hide'; }
+    else { input.type = 'password'; btn.textContent = '👁️ Show'; }
 }
 
 /* =========================================

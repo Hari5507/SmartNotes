@@ -1,6 +1,9 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, session, redirect, url_for
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 from pypdf import PdfReader
 
 from google import genai
@@ -15,6 +18,8 @@ import json
 import subprocess
 import urllib.request
 import tempfile
+import secrets
+from datetime import datetime
 
 try:
     from youtube_transcript_api import YouTubeTranscriptApi
@@ -44,7 +49,53 @@ except Exception as e:
 
 app = Flask(__name__)
 
-CORS(app)
+CORS(app, supports_credentials=True)
+
+# =========================================
+# AUTH & DB CONFIGURATION
+# =========================================
+
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', secrets.token_hex(32))
+db_path = os.path.join(BASE_DIR, 'smartnotes.db').replace('\\', '/')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['REMEMBER_COOKIE_DURATION'] = 2592000  # 30 days
+
+db = SQLAlchemy(app)
+login_manager = LoginManager(app)
+login_manager.login_view = '/login'
+login_manager.login_message = None
+
+
+# =========================================
+# USER MODEL
+# =========================================
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    return jsonify({'error': 'Authentication required', 'redirect': '/login'}), 401
 
 
 # =========================================
@@ -89,6 +140,12 @@ def allowed_file(filename):
         "." in filename
         and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
     )
+
+
+def get_user_upload_folder(user_id):
+    folder = os.path.join(UPLOAD_FOLDER, f'user_{user_id}')
+    os.makedirs(folder, exist_ok=True)
+    return folder
 
 
 # =========================================
@@ -253,16 +310,86 @@ DOCUMENT CONTENT:
 
 
 # =========================================
+# AUTH ROUTES
+# =========================================
+
+@app.route('/login')
+def login_page():
+    if current_user.is_authenticated:
+        return redirect('/')
+    return send_from_directory(BASE_DIR, 'login.html')
+
+
+@app.route('/register')
+def register_page():
+    if current_user.is_authenticated:
+        return redirect('/')
+    return send_from_directory(BASE_DIR, 'login.html')
+
+
+@app.route('/api/auth/register', methods=['POST'])
+def api_register():
+    data = request.get_json(silent=True) or {}
+    name = data.get('name', '').strip()
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+    if not name or not email or not password:
+        return jsonify({'error': 'All fields are required.'}), 400
+    if len(password) < 8:
+        return jsonify({'error': 'Password must be at least 8 characters.'}), 400
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'An account with this email already exists.'}), 409
+    user = User(name=name, email=email)
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    login_user(user, remember=True)
+    return jsonify({'success': True, 'user': {'id': user.id, 'name': user.name, 'email': user.email}}), 201
+
+
+@app.route('/api/auth/login', methods=['POST'])
+def api_login():
+    data = request.get_json(silent=True) or {}
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+    remember = data.get('remember', False)
+    user = User.query.filter_by(email=email).first()
+    if not user or not user.check_password(password):
+        return jsonify({'error': 'Incorrect email or password.'}), 401
+    login_user(user, remember=remember)
+    return jsonify({'success': True, 'user': {'id': user.id, 'name': user.name, 'email': user.email}})
+
+
+@app.route('/api/auth/logout', methods=['POST'])
+def api_logout():
+    logout_user()
+    return jsonify({'success': True})
+
+
+@app.route('/api/auth/me')
+def api_me():
+    if current_user.is_authenticated:
+        return jsonify({'authenticated': True, 'user': {'id': current_user.id, 'name': current_user.name, 'email': current_user.email}})
+    return jsonify({'authenticated': False}), 401
+
+
+# =========================================
 # FRONTEND ROUTES
 # =========================================
 
 @app.route("/")
 def home():
+    if not current_user.is_authenticated:
+        return redirect('/login')
     return send_from_directory(BASE_DIR, "index.html")
 
 
 @app.route("/<path:filename>")
 def serve_frontend(filename):
+    # Protect document.html and other app pages
+    protected_pages = {'document.html', 'index.html'}
+    if filename in protected_pages and not current_user.is_authenticated:
+        return redirect('/login')
     return send_from_directory(BASE_DIR, filename)
 
 
@@ -271,6 +398,7 @@ def serve_frontend(filename):
 # =========================================
 
 @app.route("/upload", methods=["POST"])
+@login_required
 def upload_file():
     if "file" not in request.files:
         return jsonify({"error": "No file was uploaded"}), 400
@@ -283,7 +411,8 @@ def upload_file():
     ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
 
     if ext == "pdf":
-        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        user_folder = get_user_upload_folder(current_user.id)
+        file_path = os.path.join(user_folder, filename)
         file.save(file_path)
 
         try:
@@ -312,6 +441,7 @@ def upload_file():
 # =========================================
 
 @app.route("/ai/summarize", methods=["POST"])
+@login_required
 def ai_summarize():
     data = request.get_json(silent=True) or {}
     text = data.get("text", "").strip()
@@ -326,6 +456,7 @@ def ai_summarize():
 
 
 @app.route("/ai/smart-notes", methods=["POST"])
+@login_required
 def ai_smart_notes():
     data = request.get_json(silent=True) or {}
     text = data.get("text", "").strip()
@@ -340,6 +471,7 @@ def ai_smart_notes():
 
 
 @app.route("/ai/key-points", methods=["POST"])
+@login_required
 def ai_key_points():
     data = request.get_json(silent=True) or {}
     text = data.get("text", "").strip()
@@ -354,6 +486,7 @@ def ai_key_points():
 
 
 @app.route("/ai/flashcards", methods=["POST"])
+@login_required
 def ai_flashcards():
     data = request.get_json(silent=True) or {}
     text = data.get("text", "").strip()
@@ -365,7 +498,6 @@ def ai_flashcards():
     if error:
         return jsonify({"error": error}), 503
 
-    import json
     cleaned = result.strip().strip("`").replace("json\n", "", 1).strip()
     try:
         cards = json.loads(cleaned)
@@ -375,6 +507,7 @@ def ai_flashcards():
 
 
 @app.route("/ai/practice-questions", methods=["POST"])
+@login_required
 def ai_practice_questions():
     data = request.get_json(silent=True) or {}
     text = data.get("text", "").strip()
@@ -389,6 +522,7 @@ def ai_practice_questions():
 
 
 @app.route("/ai/mindmap", methods=["POST"])
+@login_required
 def ai_mindmap():
     data = request.get_json(silent=True) or {}
     text = data.get("text", "").strip()
@@ -403,6 +537,7 @@ def ai_mindmap():
 
 
 @app.route("/ai/tool", methods=["POST"])
+@login_required
 def ai_unified_tool():
     data = request.get_json(silent=True) or {}
     text = data.get("text", "").strip()
@@ -428,7 +563,6 @@ def ai_unified_tool():
 
     response_data = {"success": True, "tool": tool, "result": result}
     if tool == "flashcards":
-        import json
         cleaned = result.strip().strip("`").replace("json\n", "", 1).strip()
         try:
             response_data["flashcards"] = json.loads(cleaned)
@@ -444,6 +578,7 @@ def ai_unified_tool():
 # =========================================
 
 @app.route("/audio/transcribe", methods=["POST"])
+@login_required
 def transcribe_audio():
     if not gemini_api_key:
         return jsonify({"error": "Gemini API key is not configured."}), 500
@@ -554,6 +689,7 @@ STEP 2 — ORGANIZED STUDY NOTES:
 # =========================================
 
 @app.route("/youtube/process", methods=["POST"])
+@login_required
 def process_youtube():
     if not gemini_api_key:
         return jsonify({"error": "Gemini API key is not configured."}), 500
@@ -656,6 +792,14 @@ FORMAT WITH CLEAR MARKDOWN:
         "notes": result,
         "source": "youtube"
     })
+
+
+# =========================================
+# DB INITIALIZATION
+# =========================================
+
+with app.app_context():
+    db.create_all()
 
 
 # =========================================

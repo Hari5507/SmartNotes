@@ -2,6 +2,11 @@
 .env
 .env.local
 
+# Database
+*.db
+*.sqlite3
+smartnotes.db
+
 # Python cache
 __pycache__/
 *.py[cod]

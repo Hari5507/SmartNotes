@@ -326,6 +326,64 @@ button {
     line-height: 1.5;
 }
 
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background: rgba(237, 36, 56, 0.08);
+    border: 1px solid rgba(237, 36, 56, 0.22);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: #ed2438;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ed2438;
+    box-shadow: 0 0 6px rgba(237, 36, 56, 0.6);
+    display: inline-block;
+}
+
+.hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    background: #ffffff;
+    border: 1px solid #d8e1ee;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #172b4d;
+    box-shadow: 0 1px 3px rgba(10, 30, 60, 0.04);
+}
+
+.feature-tag {
+    margin-left: auto;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: #f1f4f9;
+    color: #556885;
+    text-transform: uppercase;
+}
+
 .quick-actions {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
