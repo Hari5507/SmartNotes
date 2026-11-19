@@ -24,6 +24,13 @@
             padding: 0 16px 60px 16px;
         }
 
+        /* Extracted Content Typography - Times New Roman */
+        .document-content {
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 16.5px !important;
+            line-height: 1.85 !important;
+        }
+
         /* Reading stats and badges */
         .word-count-badge {
             display: inline-flex;
@@ -522,7 +529,23 @@
     let documentSource = sessionStorage.getItem("smartnotes_source") || sessionStorage.getItem("notegenz_source") || "pdf";
     let preGeneratedNotes = sessionStorage.getItem("smartnotes_notes") || sessionStorage.getItem("notegenz_notes") || "";
 
-    function initDocumentView() {
+    function applyDocumentData(name, text, pages, source, notes) {
+        documentName = name || "Lecture Document";
+        documentText = text || "";
+        documentPages = pages || "1";
+        documentSource = source || "pdf";
+        preGeneratedNotes = notes || "";
+
+        try {
+            sessionStorage.setItem("smartnotes_text", documentText);
+            sessionStorage.setItem("smartnotes_filename", documentName);
+            sessionStorage.setItem("smartnotes_pages", documentPages);
+            sessionStorage.setItem("smartnotes_source", documentSource);
+            if (preGeneratedNotes) {
+                sessionStorage.setItem("smartnotes_notes", preGeneratedNotes);
+            }
+        } catch(e) {}
+
         const docContentEl = document.getElementById("documentContent");
         const docNameEl = document.getElementById("documentName");
         const pageBadgeEl = document.getElementById("pageBadge");
@@ -531,51 +554,80 @@
         const sourceIndicatorBadge = document.getElementById("sourceIndicatorBadge");
         const wordCountBadge = document.getElementById("wordCountBadge");
 
-        if (documentName) {
-            docNameEl.textContent = documentName;
-        }
-
-        if (documentText && documentText.trim()) {
-            docContentEl.textContent = documentText;
-            const words = documentText.trim().split(/\s+/).length;
-            wordCountBadge.textContent = `📝 ${words.toLocaleString()} words`;
-        } else {
-            // Attempt to fetch user's newest document from server if session is empty
-            fetchLatestUserDocument();
-        }
+        if (docNameEl) docNameEl.textContent = documentName;
+        if (docContentEl) docContentEl.textContent = documentText || "No content extracted for this lecture.";
+        
+        const words = (documentText && documentText.trim()) ? documentText.trim().split(/\s+/).length : 0;
+        if (wordCountBadge) wordCountBadge.textContent = `📝 ${words.toLocaleString()} words`;
 
         if (documentSource === "audio") {
-            topbarIconEl.textContent = "🎙️";
-            pageBadgeEl.textContent = "🎙️ Audio Lecture";
-            pageBadgeEl.className = "meta-badge audio";
-            panelSubtitleEl.textContent = "Audio speech transcribed into study material";
-            sourceIndicatorBadge.textContent = "Audio Source";
+            if (topbarIconEl) topbarIconEl.textContent = "🎙️";
+            if (pageBadgeEl) {
+                pageBadgeEl.textContent = "🎙️ Audio Lecture";
+                pageBadgeEl.className = "meta-badge audio";
+            }
+            if (panelSubtitleEl) panelSubtitleEl.textContent = "Audio speech transcribed into study material";
+            if (sourceIndicatorBadge) sourceIndicatorBadge.textContent = "Audio Source";
         } else if (documentSource === "youtube") {
-            topbarIconEl.textContent = "▶";
-            pageBadgeEl.textContent = "▶ YouTube Lecture";
-            pageBadgeEl.className = "meta-badge youtube";
-            panelSubtitleEl.textContent = "YouTube video lecture content & transcript";
-            sourceIndicatorBadge.textContent = "YouTube Source";
+            if (topbarIconEl) topbarIconEl.textContent = "▶";
+            if (pageBadgeEl) {
+                pageBadgeEl.textContent = "▶ YouTube Lecture";
+                pageBadgeEl.className = "meta-badge youtube";
+            }
+            if (panelSubtitleEl) panelSubtitleEl.textContent = "YouTube video lecture content & transcript";
+            if (sourceIndicatorBadge) sourceIndicatorBadge.textContent = "YouTube Source";
         } else {
-            topbarIconEl.textContent = "📄";
+            if (topbarIconEl) topbarIconEl.textContent = "📄";
             const pNum = (documentPages && documentPages !== "0") ? `${documentPages} page(s)` : "PDF Document";
-            pageBadgeEl.textContent = `📄 ${pNum}`;
-            pageBadgeEl.className = "meta-badge pdf";
-            panelSubtitleEl.textContent = "Text extracted from your uploaded lecture PDF";
-            sourceIndicatorBadge.textContent = "PDF Document";
+            if (pageBadgeEl) {
+                pageBadgeEl.textContent = `📄 ${pNum}`;
+                pageBadgeEl.className = "meta-badge pdf";
+            }
+            if (panelSubtitleEl) panelSubtitleEl.textContent = "Text extracted from your uploaded lecture PDF";
+            if (sourceIndicatorBadge) sourceIndicatorBadge.textContent = "PDF Document";
         }
 
-        // If pre-generated notes exist (e.g. from YouTube or Audio upload), auto-display
         if (preGeneratedNotes && preGeneratedNotes.trim()) {
             displayMarkdownResult("📘 Smart Notes", preGeneratedNotes, true);
             highlightActiveToolPill("smartNotesBtn");
         }
+    }
 
-        // Check if an auto-tool was requested from Dashboard navigation
+    async function initDocumentView() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryId = urlParams.get('id');
+
+        if (queryId) {
+            try {
+                const res = await fetch(`/api/documents/${queryId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.document) {
+                        const doc = data.document;
+                        applyDocumentData(doc.filename, doc.extracted_text, doc.pages, doc.file_type, doc.notes);
+                        handleAutoToolNav();
+                        return;
+                    }
+                }
+            } catch(e) {
+                console.log("Direct doc fetch note:", e);
+            }
+        }
+
+        if (documentText && documentText.trim()) {
+            applyDocumentData(documentName, documentText, documentPages, documentSource, preGeneratedNotes);
+            handleAutoToolNav();
+        } else {
+            await fetchLatestUserDocument();
+            handleAutoToolNav();
+        }
+    }
+
+    function handleAutoToolNav() {
         const autoTool = sessionStorage.getItem("smartnotes_auto_tool");
         if (autoTool) {
             sessionStorage.removeItem("smartnotes_auto_tool");
-            setTimeout(() => runTool(autoTool), 250);
+            setTimeout(() => runTool(autoTool), 300);
         }
     }
 
@@ -586,26 +638,7 @@
                 const data = await res.json();
                 if (data.success && data.documents && data.documents.length > 0) {
                     const latest = data.documents[0];
-                    documentText = latest.extracted_text || latest.text || "";
-                    documentName = latest.filename || latest.name || "Lecture Document";
-                    documentPages = latest.pages || "1";
-                    documentSource = latest.file_type || latest.type || "pdf";
-                    preGeneratedNotes = latest.notes || "";
-
-                    sessionStorage.setItem("smartnotes_text", documentText);
-                    sessionStorage.setItem("smartnotes_filename", documentName);
-                    sessionStorage.setItem("smartnotes_pages", documentPages);
-                    sessionStorage.setItem("smartnotes_source", documentSource);
-
-                    document.getElementById("documentName").textContent = documentName;
-                    document.getElementById("documentContent").textContent = documentText;
-                    const words = documentText.trim().split(/\s+/).length;
-                    document.getElementById("wordCountBadge").textContent = `📝 ${words.toLocaleString()} words`;
-
-                    if (preGeneratedNotes.trim()) {
-                        displayMarkdownResult("📘 Smart Notes", preGeneratedNotes, true);
-                        highlightActiveToolPill("smartNotesBtn");
-                    }
+                    applyDocumentData(latest.filename, latest.extracted_text, latest.pages, latest.file_type, latest.notes);
                 }
             }
         } catch(e) {
@@ -1133,7 +1166,15 @@
         const leftBranches = data.branches.filter((_, idx) => idx % 2 === 0);
         const rightBranches = data.branches.filter((_, idx) => idx % 2 === 1);
 
-        const branchColors = [
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const branchColors = isDark ? [
+            { bg: "rgba(59, 130, 246, 0.25)", border: "#3b82f6", text: "#93c5fd" },
+            { bg: "rgba(16, 185, 129, 0.25)", border: "#10b981", text: "#6ee7b7" },
+            { bg: "rgba(245, 158, 11, 0.25)", border: "#f59e0b", text: "#fcd34d" },
+            { bg: "rgba(139, 92, 246, 0.25)", border: "#8b5cf6", text: "#c4b5fd" },
+            { bg: "rgba(244, 63, 94, 0.25)", border: "#f43f5e", text: "#fda4af" },
+            { bg: "rgba(34, 197, 94, 0.25)", border: "#22c55e", text: "#86efac" }
+        ] : [
             { bg: "#eff6ff", border: "#3b82f6", text: "#1d4ed8" },
             { bg: "#ecfdf5", border: "#10b981", text: "#047857" },
             { bg: "#fffbeb", border: "#f59e0b", text: "#b45309" },
@@ -1141,6 +1182,9 @@
             { bg: "#fff1f2", border: "#f43f5e", text: "#be123c" },
             { bg: "#f0fdf4", border: "#22c55e", text: "#15803d" }
         ];
+        const subBg = isDark ? "#192334" : "#ffffff";
+        const subBorder = isDark ? "#303d50" : "#cbd5e1";
+        const subText = isDark ? "#F5F6FA" : "#334155";
 
         let svgContent = `
             <svg id="mindmapSvg" class="mindmap-svg-viewport" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
@@ -1178,9 +1222,9 @@
                     <path d="M ${branchX - 85} ${branchY} C ${branchX - 120} ${branchY}, ${subX + 60} ${subY}, ${subX} ${subY}"
                           stroke="${color.border}" stroke-width="1.5" stroke-dasharray="3,3" fill="none" opacity="0.6"/>
                     <rect x="${subX - 80}" y="${subY - 14}" width="160" height="28" rx="6"
-                          fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+                          fill="${subBg}" stroke="${subBorder}" stroke-width="1.2"/>
                     <text x="${subX}" y="${subY + 4}" font-family="Plus Jakarta Sans, sans-serif" font-size="10.5" font-weight="500"
-                          fill="#334155" text-anchor="middle">${escapeHtml(sub)}</text>
+                          fill="${subText}" text-anchor="middle">${escapeHtml(sub)}</text>
                 `;
             });
         });
@@ -1212,9 +1256,9 @@
                     <path d="M ${branchX + 85} ${branchY} C ${branchX + 120} ${branchY}, ${subX - 60} ${subY}, ${subX} ${subY}"
                           stroke="${color.border}" stroke-width="1.5" stroke-dasharray="3,3" fill="none" opacity="0.6"/>
                     <rect x="${subX - 80}" y="${subY - 14}" width="160" height="28" rx="6"
-                          fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+                          fill="${subBg}" stroke="${subBorder}" stroke-width="1.2"/>
                     <text x="${subX}" y="${subY + 4}" font-family="Plus Jakarta Sans, sans-serif" font-size="10.5" font-weight="500"
-                          fill="#334155" text-anchor="middle">${escapeHtml(sub)}</text>
+                          fill="${subText}" text-anchor="middle">${escapeHtml(sub)}</text>
                 `;
             });
         });
@@ -1491,7 +1535,7 @@
             sessionStorage.setItem("smartnotes_notes", doc.notes || "");
 
             closeModal('myNotesModal');
-            window.location.reload();
+            window.location.href = '/document.html?id=' + docId;
         } catch(e) {
             alert("Error loading document: " + e.message);
         }
@@ -1516,8 +1560,14 @@
     }
 
     /* =========================================
-       INITIALIZATION
+       INITIALIZATION & STORAGE EVENT SYNC
     ========================================= */
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'smartnotes_theme' && e.newValue) {
+            document.documentElement.setAttribute('data-theme', e.newValue);
+        }
+    });
+
     document.addEventListener("DOMContentLoaded", () => {
         checkAuth();
         initDocumentView();

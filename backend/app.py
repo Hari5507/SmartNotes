@@ -191,63 +191,55 @@ def get_user_upload_folder(user_id):
 
 # =========================================
 # HIGH-SPEED SSL-SAFE GEMINI GENERATOR
-# Uses curl --ssl-no-revoke to bypass Windows CRL offline errors
+# Verified active Google Gemini 3 preview models
 # =========================================
 
 GEMINI_MODELS = [
-    "gemini-3.5-flash-lite",
-    "gemini-3.8-flash",
-    "gemini-3.7-flash",
-    "gemini-3.6-flash",
-    "gemini-3.5-flash",
+    "gemini-3-flash-preview",
+    "gemini-3.1-flash-lite-preview",
 ]
 
 
 def gemini_generate(prompt):
     """
-    High-speed SSL-safe generation using curl --ssl-no-revoke.
-    Cascades across models automatically if one is busy.
-    Falls back to Google GenAI SDK if needed.
+    High-speed SSL-safe generation using Gemini 3 Preview models.
+    Tries Google GenAI SDK first, then cascades to direct REST with SSL bypass.
+    Works reliably on Windows, macOS, and Linux/Render.
     """
     if not gemini_api_key:
         return None, "Gemini API key is not configured."
 
-    # Try high-speed SSL-safe transport first (eliminates UNEXPECTED_EOF on Windows)
+    # Method 1: Google GenAI Client (Fastest & direct)
+    client = get_fresh_client()
+    for model_name in GEMINI_MODELS:
+        try:
+            if client:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt
+                )
+                if response and response.text:
+                    return response.text, None
+        except Exception as e:
+            print(f"GenAI SDK notice on {model_name}: {str(e)[:100]}")
+            continue
+
+    # Method 2: Direct REST fallback via urllib with unverified SSL context (works universally on all OS without curl.exe)
+    import ssl
+    ctx = ssl._create_unverified_context()
     for model_name in GEMINI_MODELS:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={gemini_api_key}"
-            payload = json.dumps({"contents": [{"parts": [{"text": prompt}]}]})
-
-            res = subprocess.run([
-                "curl.exe", "--ssl-no-revoke", "-s", "-X", "POST", url,
-                "-H", "Content-Type: application/json",
-                "--data-binary", "@-"
-            ], input=payload.encode("utf-8"), capture_output=True, timeout=12)
-
-            if res.returncode == 0 and res.stdout:
-                data = json.loads(res.stdout.decode("utf-8", errors="ignore"))
+            payload = json.dumps({"contents": [{"parts": [{"text": prompt}]}]}).encode("utf-8")
+            req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, context=ctx, timeout=10) as resp:
+                data = json.loads(resp.read().decode("utf-8", errors="ignore"))
                 if "candidates" in data and data["candidates"]:
                     parts = data["candidates"][0].get("content", {}).get("parts", [])
                     if parts and "text" in parts[0]:
-                        print(f"Fast SSL generation success using: {model_name}")
                         return parts[0]["text"], None
-                elif "error" in data:
-                    print(f"Model {model_name} busy: {data['error'].get('message', '')[:70]}")
-                    continue
         except Exception as err:
-            print(f"Fast curl check on {model_name}: {err}")
-
-    # Fallback to GenAI SDK if curl unavailable
-    for model_name in GEMINI_MODELS:
-        try:
-            client = get_fresh_client()
-            response = client.models.generate_content(
-                model=model_name,
-                contents=prompt
-            )
-            print(f"SDK fallback success using: {model_name}")
-            return response.text, None
-        except Exception as e:
+            print(f"REST fallback notice on {model_name}: {str(err)[:100]}")
             continue
 
     return None, "All AI models are temporarily busy. Please retry in a moment."
@@ -858,76 +850,62 @@ STEP 2 — ORGANIZED STUDY NOTES:
     last_error = None
     for model_name in GEMINI_MODELS:
         print(f"Trying audio transcription with: {model_name}")
-        for attempt in range(2):
-            try:
-                from google.genai import types
-                client = get_fresh_client()
-                audio_part = types.Part.from_bytes(
-                    data=audio_bytes,
-                    mime_type=mime_type
+        try:
+            from google.genai import types
+            client = get_fresh_client()
+            audio_part = types.Part.from_bytes(
+                data=audio_bytes,
+                mime_type=mime_type
+            )
+            response = client.models.generate_content(
+                model=model_name,
+                contents=[audio_part, prompt_text]
+            )
+
+            full_response = response.text
+            transcript_text = ""
+            notes_text = full_response
+
+            for sep in ["STEP 2", "ORGANIZED STUDY NOTES", "Study Notes", "NOTES:", "---"]:
+                if sep in full_response:
+                    parts = full_response.split(sep, 1)
+                    transcript_text = parts[0].strip()
+                    notes_text = sep + parts[1].strip()
+                    break
+
+            if not transcript_text:
+                transcript_text = "(Audio transcript processed into study notes below)"
+
+            # Persist document record in SQLite database isolated to current user
+            doc = Document.query.filter_by(user_id=current_user.id, filename=filename).first()
+            if not doc:
+                doc = Document(
+                    user_id=current_user.id,
+                    filename=filename,
+                    file_type="audio",
+                    pages=1,
+                    extracted_text=transcript_text,
+                    notes=notes_text
                 )
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=[
-                        types.Content(
-                            role="user",
-                            parts=[
-                                audio_part,
-                                types.Part.from_text(text=prompt_text)
-                            ]
-                        )
-                    ]
-                )
+                db.session.add(doc)
+            else:
+                doc.extracted_text = transcript_text
+                doc.notes = notes_text
+            db.session.commit()
 
-                full_response = response.text
-                transcript_text = ""
-                notes_text = full_response
+            return jsonify({
+                "success": True,
+                "filename": filename,
+                "transcript": transcript_text,
+                "notes": notes_text,
+                "source": "audio",
+                "document_id": doc.id
+            })
 
-                for sep in ["STEP 2", "ORGANIZED STUDY NOTES", "Study Notes", "NOTES:", "---"]:
-                    if sep in full_response:
-                        parts = full_response.split(sep, 1)
-                        transcript_text = parts[0].strip()
-                        notes_text = sep + parts[1].strip()
-                        break
-
-                if not transcript_text:
-                    transcript_text = "(Audio transcript processed into study notes below)"
-
-                # Persist document record in SQLite database isolated to current user
-                doc = Document.query.filter_by(user_id=current_user.id, filename=filename).first()
-                if not doc:
-                    doc = Document(
-                        user_id=current_user.id,
-                        filename=filename,
-                        file_type="audio",
-                        pages=1,
-                        extracted_text=transcript_text,
-                        notes=notes_text
-                    )
-                    db.session.add(doc)
-                else:
-                    doc.extracted_text = transcript_text
-                    doc.notes = notes_text
-                db.session.commit()
-
-                return jsonify({
-                    "success": True,
-                    "filename": filename,
-                    "transcript": transcript_text,
-                    "notes": notes_text,
-                    "source": "audio",
-                    "document_id": doc.id
-                })
-
-            except Exception as e:
-                last_error = e
-                error_text = str(e)
-                print(f"{model_name} attempt {attempt + 1} audio note: {error_text[:120]}")
-                if any(err in error_text for err in ["503", "UNAVAILABLE", "429", "EOF", "SSL", "RemoteDisconnected"]):
-                    if attempt == 0:
-                        time.sleep(1.0)
-                        continue
-                break
+        except Exception as e:
+            last_error = e
+            print(f"{model_name} audio note: {str(e)[:120]}")
+            continue
 
     return jsonify({"error": f"Audio processing is busy. Please retry in a moment."}), 503
 
@@ -1059,6 +1037,31 @@ FORMAT WITH CLEAR MARKDOWN:
         "source": "youtube",
         "document_id": doc.id
     })
+
+
+# =========================================
+# GLOBAL ERROR HANDLERS (ALWAYS RETURN JSON FOR APIS)
+# =========================================
+
+@app.errorhandler(500)
+def handle_internal_server_error(e):
+    if request.path.startswith('/api/') or request.path.startswith('/ai/') or request.path in ['/upload', '/audio/transcribe', '/youtube/process']:
+        return jsonify({
+            'error': 'The server encountered an error processing this request. Please retry.',
+            'success': False
+        }), 500
+    return e
+
+
+@app.errorhandler(Exception)
+def handle_unhandled_exception(e):
+    if request.path.startswith('/api/') or request.path.startswith('/ai/') or request.path in ['/upload', '/audio/transcribe', '/youtube/process']:
+        print(f"Handled API error on {request.path}: {e}")
+        return jsonify({
+            'error': str(e) or 'An unexpected error occurred. Please retry.',
+            'success': False
+        }), 500
+    raise e
 
 
 # =========================================

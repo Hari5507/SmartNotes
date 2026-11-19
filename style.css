@@ -1222,9 +1222,10 @@ button {
     padding: 22px;
     overflow-y: auto;
     overflow-x: hidden;
-    color: #28364d;
-    font-size: 13px;
-    line-height: 1.75;
+    color: var(--text-primary);
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 15px;
+    line-height: 1.85;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
@@ -3725,34 +3726,177 @@ input:focus-visible,
     color: #93c5fd;
 }
 
-[data-theme="dark"] .upload-card,
-[data-theme="dark"] .tool-card,
-[data-theme="dark"] .recent-upload-card,
-[data-theme="dark"] .stat-card,
+/* Cards & Containers in Dark Mode */
+[data-theme="dark"] .upload-card-item,
+[data-theme="dark"] .study-tool-card,
+[data-theme="dark"] .recent-card-modern,
 [data-theme="dark"] .hero-illustration-card,
+[data-theme="dark"] .hero-badge-pill,
+[data-theme="dark"] .hero-feature-tag,
+[data-theme="dark"] .illus-card-preview,
+[data-theme="dark"] .illus-pill,
+[data-theme="dark"] .illus-wave-bar,
 [data-theme="dark"] .document-panel,
 [data-theme="dark"] .ai-panel,
-[data-theme="dark"] .workspace-topbar {
+[data-theme="dark"] .workspace-topbar,
+[data-theme="dark"] .panel-header,
+[data-theme="dark"] .panel-footer-actions,
+[data-theme="dark"] .ai-tools-grid,
+[data-theme="dark"] .ai-tool-pill,
+[data-theme="dark"] .ai-output-header,
+[data-theme="dark"] .ai-output-wrapper,
+[data-theme="dark"] .ai-output-body,
+[data-theme="dark"] .quiz-score-header,
+[data-theme="dark"] .quiz-question-card,
+[data-theme="dark"] .quiz-option-button,
+[data-theme="dark"] .flashcard-face.front,
+[data-theme="dark"] .flashcard-face.back,
+[data-theme="dark"] .mindmap-canvas-container,
+[data-theme="dark"] .mindmap-toolbar,
+[data-theme="dark"] .modal-box,
+[data-theme="dark"] .modal-item,
+[data-theme="dark"] .account-dropdown,
+[data-theme="dark"] .mobile-nav-drawer {
     background: var(--bg-card);
     border-color: var(--border-subtle);
-    box-shadow: var(--shadow-sm);
+    color: var(--text-primary);
 }
 
-[data-theme="dark"] .recent-upload-card:hover,
-[data-theme="dark"] .upload-card:hover,
-[data-theme="dark"] .tool-card:hover {
+/* Sub-surfaces in Dark Mode */
+[data-theme="dark"] .illus-card-preview,
+[data-theme="dark"] .illus-wave-bar,
+[data-theme="dark"] .panel-header,
+[data-theme="dark"] .panel-footer-actions,
+[data-theme="dark"] .ai-tools-grid,
+[data-theme="dark"] .ai-output-header,
+[data-theme="dark"] .quiz-score-header,
+[data-theme="dark"] .quiz-question-card,
+[data-theme="dark"] .flashcard-face.back,
+[data-theme="dark"] .mindmap-canvas-container,
+[data-theme="dark"] .mindmap-toolbar,
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer,
+[data-theme="dark"] .modal-item {
+    background: var(--bg-card-subtle);
+    border-color: var(--border-subtle);
+}
+
+/* UNIVERSAL DARK MODE TEXT COLORS - Ensures NO text stays black or invisible! */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6,
+[data-theme="dark"] strong,
+[data-theme="dark"] b,
+[data-theme="dark"] label,
+[data-theme="dark"] .hero-heading,
+[data-theme="dark"] .section-title,
+[data-theme="dark"] .upload-card-item h3,
+[data-theme="dark"] .study-tool-card h4,
+[data-theme="dark"] .recent-doc-title,
+[data-theme="dark"] .modal-header h2,
+[data-theme="dark"] .modal-item-title,
+[data-theme="dark"] .document-meta-text strong,
+[data-theme="dark"] .panel-header h2,
+[data-theme="dark"] .tool-pill-text strong,
+[data-theme="dark"] .ai-output-header h3,
+[data-theme="dark"] .ai-placeholder-state h3,
+[data-theme="dark"] .ai-markdown-body,
+[data-theme="dark"] .ai-markdown-body h1,
+[data-theme="dark"] .ai-markdown-body h2,
+[data-theme="dark"] .ai-markdown-body h3,
+[data-theme="dark"] .ai-markdown-body strong,
+[data-theme="dark"] .quiz-score-counter,
+[data-theme="dark"] .quiz-question-title,
+[data-theme="dark"] .quiz-option-button,
+[data-theme="dark"] .flashcard-card-content,
+[data-theme="dark"] .audio-timer,
+[data-theme="dark"] .preview-title,
+[data-theme="dark"] .illus-pill strong,
+[data-theme="dark"] .dropzone-container h3,
+[data-theme="dark"] .feature-heading h3,
+[data-theme="dark"] .mini-notes strong,
+[data-theme="dark"] .question-preview strong,
+[data-theme="dark"] .flashcard-preview span,
+[data-theme="dark"] .document-title strong,
+[data-theme="dark"] .modal-title-wrap h2,
+[data-theme="dark"] .auth-tabs .auth-tab-btn.active {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] p,
+[data-theme="dark"] span:not(.quiz-option-letter):not(.theme-icon):not(.kicker-pulse):not(.dot-red):not(.dot-yellow):not(.dot-green),
+[data-theme="dark"] small,
+[data-theme="dark"] li,
+[data-theme="dark"] .hero-description,
+[data-theme="dark"] .section-subtitle,
+[data-theme="dark"] .upload-card-item p,
+[data-theme="dark"] .study-tool-card p,
+[data-theme="dark"] .recent-doc-meta,
+[data-theme="dark"] .modal-item-sub,
+[data-theme="dark"] .panel-header p,
+[data-theme="dark"] .tool-pill-text small,
+[data-theme="dark"] .ai-placeholder-state p,
+[data-theme="dark"] .dropzone-container p,
+[data-theme="dark"] .illus-pill small,
+[data-theme="dark"] .flashcard-card-footer,
+[data-theme="dark"] .document-title small,
+[data-theme="dark"] .feature-heading p,
+[data-theme="dark"] .btn-toggle-pw,
+[data-theme="dark"] .form-options,
+[data-theme="dark"] .auth-tab-btn {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+    background: var(--bg-card-subtle) !important;
+    border-color: var(--border-subtle) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .mini-notes,
+[data-theme="dark"] .question-preview,
+[data-theme="dark"] .flashcard-preview {
+    background: var(--bg-card-subtle) !important;
+    border-color: var(--border-subtle) !important;
+}
+
+[data-theme="dark"] .document-content {
+    color: var(--text-primary) !important;
+    background: var(--bg-card) !important;
+}
+
+[data-theme="dark"] .upload-card-item:hover,
+[data-theme="dark"] .study-tool-card:hover,
+[data-theme="dark"] .recent-card-modern:hover {
     border-color: var(--accent-red);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
 }
 
 [data-theme="dark"] .dropzone-container {
-    background: rgba(25, 35, 52, 0.7);
+    background: rgba(25, 35, 52, 0.75);
     border-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .dropzone-container:hover {
+    border-color: var(--accent-red);
+    background: rgba(25, 35, 52, 0.95);
 }
 
 [data-theme="dark"] .btn-glass-action,
 [data-theme="dark"] .back-button,
-[data-theme="dark"] .btn-action {
+[data-theme="dark"] .btn-action,
+[data-theme="dark"] .btn-card-flip,
+[data-theme="dark"] .btn-retake-quiz {
     background: var(--bg-card-subtle);
     border-color: var(--border-subtle);
     color: var(--text-primary);
@@ -3760,9 +3904,53 @@ input:focus-visible,
 
 [data-theme="dark"] .btn-glass-action:hover,
 [data-theme="dark"] .back-button:hover,
-[data-theme="dark"] .btn-action:hover {
+[data-theme="dark"] .btn-action:hover,
+[data-theme="dark"] .btn-card-flip:hover,
+[data-theme="dark"] .btn-retake-quiz:hover {
     background: var(--bg-card);
+    border-color: var(--text-primary);
     color: #FFFFFF;
+}
+
+[data-theme="dark"] .btn-browse {
+    background: var(--accent-red);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .tool-action-link {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .upload-card-badge {
+    background: var(--bg-card-subtle);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .tool-tag {
+    background: var(--bg-card-subtle);
+    color: var(--text-secondary);
+    border-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .recent-delete-btn {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .recent-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+[data-theme="dark"] .quiz-option-letter {
+    background: var(--bg-card);
+    border-color: var(--border-subtle);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .word-count-badge {
+    background: var(--bg-card-subtle);
+    border-color: var(--border-subtle);
+    color: var(--text-secondary);
 }
 
 /* =========================================
@@ -3956,15 +4144,15 @@ input:focus-visible,
     margin-top: 3px;
 }
 
-/* Extracted Content Reading Typography */
+/* Extracted Content Reading Typography (Times New Roman) */
 .document-content {
     flex: 1;
     padding: 28px;
     overflow-y: auto;
-    font-family: 'Newsreader', Georgia, serif;
+    font-family: 'Times New Roman', Times, serif !important;
     font-size: 16.5px;
     line-height: 1.85;
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
     white-space: pre-wrap;
     word-break: break-word;
     background: var(--bg-card);

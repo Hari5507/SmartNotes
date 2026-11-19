@@ -769,17 +769,17 @@
       <button class="modal-close" onclick="closeSettingsModal()">✕</button>
     </div>
     <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
-      <div style="padding:14px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px;">
+      <div style="padding:14px; background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:12px;">
         <strong style="font-size:13.5px; color:var(--text-primary); display:block;">🤖 AI Model Engine</strong>
-        <span style="font-size:12px; color:var(--text-muted); display:block; margin-top:2px;">Google Gemini 3.8 Flash Cascade (Auto-Optimized)</span>
+        <span style="font-size:12px; color:var(--text-muted); display:block; margin-top:2px;">Google Gemini 3 Flash Cascade (Auto-Optimized)</span>
       </div>
-      <div style="padding:14px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px;">
+      <div style="padding:14px; background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:12px;">
         <strong style="font-size:13.5px; color:var(--text-primary); display:block;">🔒 Data Privacy & Isolation</strong>
         <span style="font-size:12px; color:var(--text-muted); display:block; margin-top:2px;">All uploaded documents & notes are strictly isolated to your personal account.</span>
       </div>
-      <div style="padding:14px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px;">
+      <div style="padding:14px; background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:12px;">
         <strong style="font-size:13.5px; color:var(--text-primary); display:block;">🎨 Display Theme</strong>
-        <span style="font-size:12px; color:var(--text-muted); display:block; margin-top:2px;">Warm Cream / Studio Light (Modern SaaS)</span>
+        <span style="font-size:12px; color:var(--text-muted); display:block; margin-top:2px;">Dynamic Adaptive Theme (Syncs across all workspace pages)</span>
       </div>
     </div>
     <div class="modal-footer">
@@ -1029,7 +1029,7 @@ function renderRecentUploads() {
         const typeLabel = item.type === "pdf" ? `PDF • ${item.pages || 1} pages` : (item.type === "audio" ? "Audio Recording" : "YouTube Video");
 
         return `
-            <div class="recent-card-modern" onclick="openExistingDocument('${encodeURIComponent(JSON.stringify(item))}')" title="Click to open this lecture in Workspace">
+            <div class="recent-card-modern" onclick="openExistingDocumentById(${item.id})" title="Click to open this lecture in Workspace">
                 <div class="recent-type-icon ${typeClass}">${iconText}</div>
                 <div class="recent-card-body">
                     <div class="recent-doc-title">${escapeHtml(item.name)}</div>
@@ -1046,28 +1046,31 @@ function renderRecentUploads() {
     }).join("");
 }
 
-function openExistingDocument(itemJson) {
-    try {
-        const item = JSON.parse(decodeURIComponent(itemJson));
-        sessionStorage.setItem("notegenz_text", item.text || "");
-        sessionStorage.setItem("notegenz_filename", item.name || "Lecture Document");
-        sessionStorage.setItem("notegenz_pages", item.pages || "1");
-        sessionStorage.setItem("notegenz_source", item.type || "pdf");
-        sessionStorage.setItem("smartnotes_text", item.text || "");
-        sessionStorage.setItem("smartnotes_filename", item.name || "Lecture Document");
-        sessionStorage.setItem("smartnotes_pages", item.pages || "1");
-        sessionStorage.setItem("smartnotes_source", item.type || "pdf");
-        if (item.notes) {
-            sessionStorage.setItem("notegenz_notes", item.notes);
-            sessionStorage.setItem("smartnotes_notes", item.notes);
-        } else {
-            sessionStorage.removeItem("notegenz_notes");
-            sessionStorage.removeItem("smartnotes_notes");
+function openExistingDocumentById(docId) {
+    const item = userDocumentsCache.find(d => d.id === docId);
+    if (item) {
+        try {
+            sessionStorage.setItem("smartnotes_id", item.id);
+            sessionStorage.setItem("smartnotes_text", item.text || "");
+            sessionStorage.setItem("smartnotes_filename", item.name || "Lecture Document");
+            sessionStorage.setItem("smartnotes_pages", item.pages || "1");
+            sessionStorage.setItem("smartnotes_source", item.type || "pdf");
+            sessionStorage.setItem("notegenz_text", item.text || "");
+            sessionStorage.setItem("notegenz_filename", item.name || "Lecture Document");
+            sessionStorage.setItem("notegenz_pages", item.pages || "1");
+            sessionStorage.setItem("notegenz_source", item.type || "pdf");
+            if (item.notes) {
+                sessionStorage.setItem("smartnotes_notes", item.notes);
+                sessionStorage.setItem("notegenz_notes", item.notes);
+            } else {
+                sessionStorage.removeItem("smartnotes_notes");
+                sessionStorage.removeItem("notegenz_notes");
+            }
+        } catch(e) {
+            console.warn("sessionStorage note:", e);
         }
-        window.location.href = "/document.html";
-    } catch(e) {
-        console.error(e);
     }
+    window.location.href = `/document.html?id=${docId}`;
 }
 
 async function deleteRecentItem(docId, docName) {
@@ -1093,7 +1096,7 @@ async function openHistoryModal() {
         container.innerHTML = `<p style="text-align:center; color:var(--text-secondary); padding: 24px;">No upload history available.</p>`;
     } else {
         container.innerHTML = list.map(item => `
-            <div class="modal-item" onclick="openExistingDocument('${encodeURIComponent(JSON.stringify(item))}')">
+            <div class="modal-item" onclick="openExistingDocumentById(${item.id})">
                 <div>
                     <div class="modal-item-title">${item.type === 'pdf' ? '📄' : (item.type === 'audio' ? '🎙️' : '▶')} ${escapeHtml(item.name)}</div>
                     <div class="modal-item-sub">${item.time || 'Processed'} • Click to open in Workspace</div>
@@ -1906,6 +1909,13 @@ if (settingsModalEl) {
         if (e.target === this) closeSettingsModal();
     });
 }
+
+// Listen for cross-tab theme changes
+window.addEventListener('storage', function(e) {
+    if (e.key === 'smartnotes_theme' && e.newValue) {
+        document.documentElement.setAttribute('data-theme', e.newValue);
+    }
+});
 
 // Initialize on page load
 loadStudentProfile();

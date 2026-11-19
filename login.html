@@ -13,6 +13,11 @@
                 document.documentElement.setAttribute('data-theme', savedTheme);
             } catch(e) {}
         })();
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'smartnotes_theme' && e.newValue) {
+                document.documentElement.setAttribute('data-theme', e.newValue);
+            }
+        });
     </script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
