@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartNotes - AI Powered Lecture Notes</title>
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=7">
     <style>
 /* Modal overlay and boxes */
 .modal-overlay {
@@ -365,339 +365,413 @@
 
 <body>
 
-<!-- MOBILE TOP HEADER (VISIBLE ONLY ON MOBILE <= 768px) -->
-<header class="mobile-top-header">
-    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Open menu">☰</button>
-    <div class="mobile-brand" onclick="goDashboard()">
-        <div class="logo-mark">
-            <svg width="28" height="24" viewBox="0 0 60 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 38C14 36 24 38 30 42C36 38 46 36 54 38V12C46 10 36 12 30 16C24 12 14 10 6 12V38Z" fill="#ED2438"/>
-                <path d="M30 16V42" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
-                <path d="M12 18C18 16 24 17 28 19" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                <path d="M48 18C42 16 36 17 32 19" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                <path d="M30 4L31.8 8.2L36 10L31.8 11.8L30 16L28.2 11.8L24 10L28.2 8.2L30 4Z" fill="#FFD700"/>
-            </svg>
-        </div>
-        <h2>SmartNotes</h2>
-    </div>
-    <button class="mobile-user-btn" onclick="logoutUser()" aria-label="Logout">
-        <div class="student-avatar" id="mobileAvatar">H</div>
-    </button>
-</header>
-
-<!-- BACKDROP OVERLAY FOR MOBILE SIDEBAR -->
-<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
-
-<aside class="sidebar" id="sidebar">
-
-    <!-- MOBILE DRAWER CLOSE HEADER -->
-    <div class="sidebar-header-mobile">
-        <div class="brand-mobile">
-            <div class="logo-mark">
-                <svg width="28" height="24" viewBox="0 0 60 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 38C14 36 24 38 30 42C36 38 46 36 54 38V12C46 10 36 12 30 16C24 12 14 10 6 12V38Z" fill="#ED2438"/>
-                    <path d="M30 16V42" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+<!-- =========================================
+     FLOATING HORIZONTAL NAVIGATION BAR
+========================================= -->
+<header class="navbar-wrapper">
+    <nav class="floating-navbar">
+        <!-- LEFT: Logo & Brand -->
+        <div class="nav-left" onclick="goDashboard()">
+            <div class="nav-logo-icon">
+                <svg width="34" height="28" viewBox="0 0 60 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 38C14 36 24 38 30 42C36 38 46 36 54 38V12C46 10 36 12 30 16C24 12 14 10 6 12V38Z" fill="#F3263D"/>
+                    <path d="M30 16V42" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M12 18C18 16 24 17 28 19" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 24C18 22 24 23 28 25" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 30C18 28 24 29 28 31" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M48 18C42 16 36 17 32 19" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M48 24C42 22 36 23 32 25" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M48 30C42 28 36 29 32 31" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
                     <path d="M30 4L31.8 8.2L36 10L31.8 11.8L30 16L28.2 11.8L24 10L28.2 8.2L30 4Z" fill="#FFD700"/>
                 </svg>
             </div>
-            <strong>SmartNotes</strong>
-        </div>
-        <button class="sidebar-close-btn" onclick="closeMobileSidebar()" aria-label="Close menu">✕</button>
-    </div>
-
-    <!-- SMARTNOTES BRAND LOGO (DESKTOP) -->
-    <div class="brand">
-        <div class="logo-mark" aria-hidden="true" style="margin-bottom:6px;">
-            <svg width="60" height="52" viewBox="0 0 60 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 38C14 36 24 38 30 42C36 38 46 36 54 38V12C46 10 36 12 30 16C24 12 14 10 6 12V38Z" fill="#ED2438"/>
-                <path d="M30 16V42" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
-                <path d="M12 18C18 16 24 17 28 19" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                <path d="M12 24C18 22 24 23 28 25" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                <path d="M12 30C18 28 24 29 28 31" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                <path d="M48 18C42 16 36 17 32 19" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                <path d="M48 24C42 22 36 23 32 25" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                <path d="M48 30C42 28 36 29 32 31" stroke="#FFB0B8" stroke-width="2" stroke-linecap="round"/>
-                <path d="M30 4L31.8 8.2L36 10L31.8 11.8L30 16L28.2 11.8L24 10L28.2 8.2L30 4Z" fill="#FFD700"/>
-            </svg>
-        </div>
-        <div class="brand-text">
-            <h2>SmartNotes</h2>
-            <p>AI Powered Lecture Notes</p>
-        </div>
-    </div>
-
-    <!-- SIDEBAR NAV WITH ACTIVE ROUTING -->
-    <nav class="sidebar-nav">
-        <button class="nav-item active" onclick="goDashboard()">⌂ <span>Home</span></button>
-        <button class="nav-item" onclick="triggerUploadModal()">♧ <span>Upload</span></button>
-        <button class="nav-item" onclick="openMyNotesModal()">▤ <span>My Notes</span></button>
-        <button class="nav-item" onclick="openFeatureFromNav('flashcards')">▣ <span>Flashcards</span></button>
-        <button class="nav-item" onclick="openFeatureFromNav('practice_questions')">? <span>Practice Questions</span></button>
-        <button class="nav-item" onclick="openFeatureFromNav('mindmap')">⌘ <span>Mind Maps</span></button>
-        <button class="nav-item" onclick="openHistoryModal()">◷ <span>History</span></button>
-        <button class="nav-item" onclick="logoutUser()">🚪 <span>Logout</span></button>
-    </nav>
-
-    <div class="sidebar-card">
-        <div class="sidebar-card-icon">◆</div>
-        <strong>Learn Smarter<br>Not Harder</strong>
-        <p>Turn your lectures into clear, organized notes with AI.</p>
-    </div>
-
-    <!-- STUDENT PROFILE -->
-    <div class="student-profile" style="cursor:default;" title="Logged in account">
-        <div class="student-avatar" id="sidebarAvatar">H</div>
-        <div>
-            <strong id="sidebarStudentName">Loading...</strong>
-            <span id="sidebarStudentEmail"></span>
-        </div>
-    </div>
-</aside>
-
-
-<main class="main">
-
-    <header class="topbar">
-        <div class="search-box">
-            <span>⌕</span>
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Search your notes, topics, or uploads..."
-                autocomplete="off"
-            >
+            <span class="nav-brand-title">SmartNotes</span>
+            <span class="nav-badge">AI 2.0</span>
         </div>
 
-        <div class="top-actions">
-            <button class="notification-btn" aria-label="Notifications" onclick="openMyNotesModal()">
-                ♧
-                <i></i>
+        <!-- CENTER: Capsule Navigation Pills -->
+        <div class="nav-center">
+            <button class="nav-pill active" onclick="goDashboard()">Dashboard</button>
+            <button class="nav-pill" onclick="triggerUploadModal()">Upload</button>
+            <button class="nav-pill" onclick="openMyNotesModal()">My Notes</button>
+            <button class="nav-pill" onclick="openFeatureFromNav('flashcards')">Flashcards</button>
+            <button class="nav-pill" onclick="openFeatureFromNav('practice_questions')">Practice Questions</button>
+            <button class="nav-pill" onclick="openFeatureFromNav('mindmap')">Mind Maps</button>
+            <button class="nav-pill" onclick="openHistoryModal()">History</button>
+        </div>
+
+        <!-- RIGHT: Notifications, Profile, Dropdown -->
+        <div class="nav-right">
+            <button class="nav-icon-btn" onclick="openMyNotesModal()" aria-label="Notifications" title="Saved Documents & Notes">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span class="notification-dot"></span>
             </button>
-            <div class="profile" id="topbarAvatar" style="cursor:pointer;" title="Logged in" onclick="logoutUser()">H</div>
-        </div>
-    </header>
 
-
-    <div class="dashboard-grid">
-
-        <section class="dashboard-main">
-
-            <section class="hero">
-                <div>
-                    <div class="hero-badge">
-                        <span class="badge-dot"></span>
-                        <span>AI Lecture Intelligence Platform</span>
-                    </div>
-                    <h1>Turn Lectures into <span>Clarity & Knowledge</span></h1>
-                    <p>Instant AI transcription, structured study notes, active-recall flashcards, and interactive mind maps from any lecture PDF, audio recording, or YouTube link.</p>
-                    <div class="hero-pills">
-                        <span class="hero-pill">⚡ Real-time Extraction</span>
-                        <span class="hero-pill">🧠 5 AI Study Tools</span>
-                        <span class="hero-pill">🔒 User-Isolated & Secure</span>
-                    </div>
-                </div>
-            </section>
-
-
-            <section class="quick-actions">
-                <button class="quick-card" onclick="fileInput.click()">
-                    <div class="quick-icon red">▤</div>
-                    <div>
-                        <strong>Upload PDF</strong>
-                        <p>Upload lecture slides<br>or documents</p>
-                    </div>
+            <div class="user-menu-container">
+                <button class="nav-user-trigger" id="userMenuBtn" onclick="toggleUserDropdown(event)" aria-haspopup="true">
+                    <div class="user-avatar" id="navbarAvatar">H</div>
+                    <span class="user-name" id="navbarStudentName">Hari Prasad</span>
+                    <span class="user-chevron">▾</span>
                 </button>
 
-                <button class="quick-card" onclick="openAudioRecorder()">
-                    <div class="quick-icon purple">◉</div>
-                    <div>
-                        <strong>Audio / Music & Rec</strong>
-                        <p>Upload MP3/audio file<br>or record live mic</p>
+                <!-- Account Dropdown Menu -->
+                <div class="account-dropdown" id="accountDropdown">
+                    <div class="dropdown-user-info">
+                        <div class="user-avatar" id="dropdownAvatar">H</div>
+                        <div class="dropdown-text">
+                            <strong id="dropdownName">Hari Prasad</strong>
+                            <span id="dropdownEmail">student@snist.ac.in</span>
+                        </div>
                     </div>
-                </button>
-
-                <button class="quick-card" onclick="openYouTubeDialog()">
-                    <div class="quick-icon blue">↗</div>
-                    <div>
-                        <strong>Paste Link</strong>
-                        <p>Any YouTube video<br>or lecture link</p>
-                    </div>
-                </button>
-            </section>
-
-
-            <!-- UNIVERSAL DRAG & DROP ZONE: SUPPORTS PDF & AUDIO/MUSIC -->
-            <section class="upload-card">
-                <div
-                    class="dropzone"
-                    id="dropzone"
-                    role="button"
-                    tabindex="0"
-                    aria-label="Upload Lecture File"
-                >
-                    <div class="upload-cloud">⇧</div>
-                    <h2>Drag and drop your file here</h2>
-                    <p>PDF documents or Audio / Music files (MP3, WAV, M4A)</p>
-                    <small>Supports: PDF, MP3, WAV, M4A, AAC, OGG (Max 100MB)</small>
-
-                    <input
-                        type="file"
-                        id="fileInput"
-                        accept=".pdf,application/pdf,audio/*,.mp3,.wav,.m4a,.aac,.ogg,.webm"
-                        hidden
-                    >
-
-                    <button type="button" id="chooseFile" class="choose-file">
-                        ▢ &nbsp; Choose File
+                    <span class="dropdown-plan-badge">Pro Student Plan</span>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" onclick="openMyNotesModal()">
+                        <span>📂</span> My Saved Notes
+                    </button>
+                    <button class="dropdown-item" onclick="openHistoryModal()">
+                        <span>◷</span> Upload History
+                    </button>
+                    <button class="dropdown-item" onclick="openSettingsModal()">
+                        <span>⚙️</span> Preferences & AI Settings
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item logout" onclick="logoutUser()">
+                        <span>🚪</span> Sign Out
                     </button>
                 </div>
+            </div>
 
-                <div class="file-status" id="fileStatus"></div>
-            </section>
+            <!-- Mobile Hamburger Button -->
+            <button class="mobile-hamburger-btn" id="mobileHamburgerBtn" onclick="toggleMobileNav()" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
 
-        </section>
-
-
-        <aside class="dashboard-side">
-
-            <section class="learning-card">
-                <div class="learning-copy">
-                    <h2>From Lectures<br>to <span>Learning</span></h2>
-                    <p class="flow">Upload <b>→</b> AI Processes <b>→</b> Get Notes</p>
-
-                    <ul>
-                        <li><span>✓</span> Summaries</li>
-                        <li><span>✓</span> Key Points</li>
-                        <li><span>✓</span> Flashcards</li>
-                        <li><span>✓</span> Practice Questions</li>
-                        <li><span>✓</span> Mind Maps</li>
-                    </ul>
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-drawer" id="mobileNavDrawer">
+        <button class="mobile-nav-link active" onclick="goDashboard(); closeMobileNav();">⌂ Dashboard</button>
+        <button class="mobile-nav-link" onclick="triggerUploadModal(); closeMobileNav();">⇧ Upload Lecture</button>
+        <button class="mobile-nav-link" onclick="openMyNotesModal(); closeMobileNav();">▤ My Notes</button>
+        <button class="mobile-nav-link" onclick="openFeatureFromNav('flashcards'); closeMobileNav();">▣ Flashcards</button>
+        <button class="mobile-nav-link" onclick="openFeatureFromNav('practice_questions'); closeMobileNav();">? Practice Questions</button>
+        <button class="mobile-nav-link" onclick="openFeatureFromNav('mindmap'); closeMobileNav();">⌘ Mind Maps</button>
+        <button class="mobile-nav-link" onclick="openHistoryModal(); closeMobileNav();">◷ History</button>
+        <div class="mobile-drawer-footer">
+            <div class="mobile-user-row">
+                <div class="user-avatar" id="mobileNavAvatar">H</div>
+                <div>
+                    <strong id="mobileNavName" style="font-size:13px; color:var(--text-primary); display:block;">Hari Prasad</strong>
+                    <small id="mobileNavEmail" style="font-size:11px; color:var(--text-muted); display:block;">student@snist.ac.in</small>
                 </div>
-
-                <div class="learning-illustration">
-                    <div class="play-button">▶</div>
-                    <div class="person-head"></div>
-                    <div class="person-body"></div>
-                    <div class="laptop"></div>
-                </div>
-            </section>
-
-
-            <!-- RECENT UPLOADS (DYNAMICALLY POPULATED) -->
-            <section class="recent-card">
-                <div class="recent-header">
-                    <h2>Recent Uploads</h2>
-                    <button onclick="openHistoryModal()">View all →</button>
-                </div>
-
-                <div class="recent-list" id="recentList">
-                    <!-- Populated dynamically via JS -->
-                </div>
-            </section>
-
-        </aside>
-
+            </div>
+            <button class="btn-mobile-logout" onclick="logoutUser()">Sign Out</button>
+        </div>
     </div>
+</header>
 
 
-    <!-- ALL 5 INTERACTIVE FEATURE CARDS ON HOMEPAGE -->
-    <section class="features" id="features">
+<!-- =========================================
+     MAIN DASHBOARD CONTAINER
+========================================= -->
+<main class="dashboard-container">
 
-        <article class="feature-card" style="cursor:pointer;" onclick="openFeatureFromNav('smart_notes')">
-            <div class="feature-heading">
-                <div class="feature-icon purple">▤</div>
-                <div>
-                    <h3>AI Notes</h3>
-                    <p>Get structured and organized notes</p>
+    <!-- 1. HERO SECTION (Asymmetrical Editorial Design) -->
+    <section class="hero-section">
+        <div class="hero-left">
+            <div class="hero-badge-pill">
+                <span class="kicker-pulse"></span>
+                <span>AI Lecture Intelligence Platform</span>
+            </div>
+
+            <h1 class="hero-heading">
+                Turn Your Lectures Into <span class="serif-accent">Clarity & Knowledge.</span>
+            </h1>
+
+            <p class="hero-description">
+                Transform PDFs, audio recordings and YouTube lectures into organized AI-powered study materials with instant flashcards, mind maps, and practice quizzes.
+            </p>
+
+            <div class="hero-pills-row">
+                <div class="hero-feature-tag">
+                    <span>✨</span> AI-Powered Learning
                 </div>
-                <span class="feature-tag">01 • Notes</span>
-            </div>
-            <div class="mini-notes">
-                <strong>Lecture Notes</strong>
-                <span class="mini-line long"></span>
-                <span class="mini-line"></span>
-                <span class="mini-line short"></span>
-                <span class="mini-line"></span>
-            </div>
-        </article>
-
-        <article class="feature-card" style="cursor:pointer;" onclick="openFeatureFromNav('key_points')">
-            <div class="feature-heading">
-                <div class="feature-icon yellow">★</div>
-                <div>
-                    <h3>Key Points</h3>
-                    <p>Important points extracted by AI</p>
+                <div class="hero-feature-tag">
+                    <span>🧠</span> 5 AI Study Tools
                 </div>
-                <span class="feature-tag">02 • Points</span>
-            </div>
-            <div class="mini-notes bullets">
-                <strong>Key Points</strong>
-                <span class="mini-line long"></span>
-                <span class="mini-line"></span>
-                <span class="mini-line long"></span>
-                <span class="mini-line"></span>
-            </div>
-        </article>
-
-        <article class="feature-card" style="cursor:pointer;" onclick="openFeatureFromNav('flashcards')">
-            <div class="feature-heading">
-                <div class="feature-icon green">▣</div>
-                <div>
-                    <h3>Flashcards</h3>
-                    <p>Active recall cards for quick revision</p>
+                <div class="hero-feature-tag">
+                    <span>🔒</span> Secure Personal Workspace
                 </div>
-                <span class="feature-tag">03 • Recall</span>
             </div>
-            <div class="flashcard-preview">
-                <span>What is Normalization<br>in DBMS?</span>
-                <b>1 / 10 • Click to practice</b>
-            </div>
-        </article>
 
-        <article class="feature-card" style="cursor:pointer;" onclick="openFeatureFromNav('practice_questions')">
-            <div class="feature-heading">
-                <div class="feature-icon violet">?</div>
-                <div>
-                    <h3>Practice Questions</h3>
-                    <p>Get practice questions from your content</p>
+            <div class="hero-actions-row">
+                <button class="btn-primary-action" onclick="fileInput.click()">
+                    <span>⇧</span> Upload Lecture Notes
+                </button>
+                <button class="btn-glass-action" onclick="openAudioRecorder()">
+                    <span>🎙️</span> Audio Recording
+                </button>
+                <button class="btn-glass-action" onclick="openYouTubeDialog()">
+                    <span>↗</span> Paste YouTube Link
+                </button>
+            </div>
+        </div>
+
+        <!-- RIGHT: Interactive 3D Glass Study Illustration -->
+        <div class="hero-right">
+            <div class="hero-illustration-card">
+                <div class="illus-header">
+                    <div class="illus-dots">
+                        <span class="dot-red"></span>
+                        <span class="dot-yellow"></span>
+                        <span class="dot-green"></span>
+                    </div>
+                    <span class="illus-filename">📄 Advanced_Neural_Networks_Lecture.pdf</span>
+                    <span class="illus-badge">● Live AI Active</span>
                 </div>
-                <span class="feature-tag">04 • Quiz</span>
-            </div>
-            <div class="question-preview">
-                <strong>Q. What is a primary key?</strong>
-                <span>○ A unique row identifier</span>
-                <span>○ Foreign table pointer</span>
-                <span>○ Click to test yourself</span>
-            </div>
-        </article>
 
-        <article class="feature-card" style="cursor:pointer;" onclick="openFeatureFromNav('mindmap')">
-            <div class="feature-heading">
-                <div class="feature-icon orange">⌘</div>
-                <div>
-                    <h3>Mind Maps</h3>
-                    <p>Visual mind maps for better understanding</p>
+                <div class="illus-wave-bar">
+                    <div class="wave-animation">
+                        <span></span><span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <div>
+                        <strong style="font-size:12.5px; color:var(--text-primary); display:block;">Speech & Document Ingestion</strong>
+                        <small style="font-size:11px; color:var(--text-muted); display:block;">Gemini AI 3.8 Flash • Real-time Extraction</small>
+                    </div>
                 </div>
-                <span class="feature-tag">05 • Visual</span>
-            </div>
-            <div class="mindmap-preview">
-                <svg class="mindmap-svg-lines" viewBox="0 0 280 160" preserveAspectRatio="none">
-                    <line x1="55" y1="36" x2="140" y2="80" stroke="#bfe1ff" stroke-width="2" stroke-dasharray="3,3" />
-                    <line x1="225" y1="36" x2="140" y2="80" stroke="#ffdf9c" stroke-width="2" stroke-dasharray="3,3" />
-                    <line x1="55" y1="124" x2="140" y2="80" stroke="#bdeecb" stroke-width="2" stroke-dasharray="3,3" />
-                    <line x1="225" y1="124" x2="140" y2="80" stroke="#ffc0c7" stroke-width="2" stroke-dasharray="3,3" />
-                </svg>
-                <div class="mind-center">Lecture</div>
-                <span class="node n1">Topic 1</span>
-                <span class="node n2">Topic 2</span>
-                <span class="node n3">Key Concepts</span>
-                <span class="node n4">Summary</span>
-            </div>
-        </article>
 
+                <div class="illus-card-preview">
+                    <div class="preview-title">
+                        <span>🧠 Smart Notes Generated</span>
+                        <span style="font-size:11px; font-weight:700; color:var(--accent-red);">100% Extracted</span>
+                    </div>
+                    <div class="preview-lines">
+                        <div class="preview-line w-90"></div>
+                        <div class="preview-line w-75"></div>
+                        <div class="preview-line w-80"></div>
+                        <div class="preview-line w-50"></div>
+                    </div>
+                </div>
+
+                <div class="illus-pills">
+                    <div class="illus-pill">
+                        <strong>15 Cards</strong>
+                        <small>Active Recall</small>
+                    </div>
+                    <div class="illus-pill">
+                        <strong>Mind Map</strong>
+                        <small>Visual Graph</small>
+                    </div>
+                    <div class="illus-pill">
+                        <strong style="color:var(--accent-red);">10x</strong>
+                        <small>Study Speed</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 2. UPLOAD SECTION -->
+    <section class="upload-section">
+        <div class="section-header">
+            <div class="section-kicker">SMART INGESTION</div>
+            <h2 class="section-title">Add Your Lecture Content</h2>
+            <p class="section-subtitle">Select your preferred format or drag your lecture files directly into the workspace</p>
+        </div>
+
+        <!-- 3 Upload Cards -->
+        <div class="upload-grid-cards">
+            <!-- 1. PDF Upload Card -->
+            <div class="upload-card-item" onclick="fileInput.click()">
+                <div>
+                    <div class="upload-card-top">
+                        <div class="card-icon-circle red">▤</div>
+                        <span class="upload-card-badge">PDF Documents</span>
+                    </div>
+                    <h3>Upload PDF</h3>
+                    <p>Upload lecture slides, course handouts, academic papers, and textbooks.</p>
+                </div>
+                <button class="card-action-btn">Choose PDF Document →</button>
+            </div>
+
+            <!-- 2. Audio Recording Card -->
+            <div class="upload-card-item" onclick="openAudioRecorder()">
+                <div>
+                    <div class="upload-card-top">
+                        <div class="card-icon-circle purple">🎙️</div>
+                        <span class="upload-card-badge">Voice & Music</span>
+                    </div>
+                    <h3>Audio Recording</h3>
+                    <p>Record your professor live or upload existing MP3, WAV, M4A, or AAC lecture recordings.</p>
+                </div>
+                <button class="card-action-btn" style="color:#7E22CE;">Record or Upload Audio →</button>
+            </div>
+
+            <!-- 3. YouTube Link Card -->
+            <div class="upload-card-item" onclick="openYouTubeDialog()">
+                <div>
+                    <div class="upload-card-top">
+                        <div class="card-icon-circle blue">▶</div>
+                        <span class="upload-card-badge">Video Lecture</span>
+                    </div>
+                    <h3>Paste YouTube Link</h3>
+                    <p>Paste any YouTube lecture, tutorial, seminar or symposium link for instant notes.</p>
+                </div>
+                <button class="card-action-btn" style="color:#2563EB;">Paste Lecture URL →</button>
+            </div>
+        </div>
+
+        <!-- Big Drag & Drop Upload Zone -->
+        <div class="dropzone-container" id="dropzone" role="button" tabindex="0" aria-label="Upload Lecture File">
+            <div class="dropzone-cloud-icon">⇧</div>
+            <h3>Drag and drop your lecture file here</h3>
+            <p>PDF lecture slides, documents, or Audio files (MP3, WAV, M4A, AAC, OGG)</p>
+            <small>Maximum file size: 100MB • Auto-processed with Gemini AI</small>
+
+            <input
+                type="file"
+                id="fileInput"
+                accept=".pdf,application/pdf,audio/*,.mp3,.wav,.m4a,.aac,.ogg,.webm"
+                hidden
+            >
+
+            <button type="button" id="chooseFile" class="btn-browse">
+                <span>📁</span> Browse Computer
+            </button>
+        </div>
+
+        <div class="file-status" id="fileStatus" style="margin-top:14px; text-align:center; font-weight:600; font-size:14px;"></div>
+    </section>
+
+
+    <!-- 3. AI STUDY TOOLS (5 Premium Cards) -->
+    <section class="tools-section">
+        <div class="section-header">
+            <div class="section-kicker">AI STUDY SUITE</div>
+            <h2 class="section-title">5 Intelligent Ways to Master Any Subject</h2>
+            <p class="section-subtitle">Transform extracted lecture text into active learning systems tailored for maximum retention.</p>
+        </div>
+
+        <div class="tools-grid">
+            <!-- 1. AI Notes -->
+            <div class="study-tool-card" onclick="openFeatureFromNav('smart_notes')">
+                <div>
+                    <div class="tool-top-row">
+                        <div class="tool-icon-box purple">▤</div>
+                        <span class="tool-tag">01 • Notes</span>
+                    </div>
+                    <h4>Smart Notes</h4>
+                    <p>Structured lecture summaries, core concepts, formulas, and topic-by-topic breakdowns.</p>
+                </div>
+                <span class="tool-action-link">Open Notes →</span>
+            </div>
+
+            <!-- 2. Key Points -->
+            <div class="study-tool-card" onclick="openFeatureFromNav('key_points')">
+                <div>
+                    <div class="tool-top-row">
+                        <div class="tool-icon-box amber">★</div>
+                        <span class="tool-tag">02 • Points</span>
+                    </div>
+                    <h4>Key Points</h4>
+                    <p>High-yield exam takeaways, critical definitions, and essential testable facts extracted by AI.</p>
+                </div>
+                <span class="tool-action-link">View Points →</span>
+            </div>
+
+            <!-- 3. Flashcards -->
+            <div class="study-tool-card" onclick="openFeatureFromNav('flashcards')">
+                <div>
+                    <div class="tool-top-row">
+                        <div class="tool-icon-box green">▣</div>
+                        <span class="tool-tag">03 • Recall</span>
+                    </div>
+                    <h4>Flashcards</h4>
+                    <p>Interactive active-recall question & answer cards designed for spaced repetition and rapid review.</p>
+                </div>
+                <span class="tool-action-link">Start Practice →</span>
+            </div>
+
+            <!-- 4. Practice Questions -->
+            <div class="study-tool-card" onclick="openFeatureFromNav('practice_questions')">
+                <div>
+                    <div class="tool-top-row">
+                        <div class="tool-icon-box indigo">?</div>
+                        <span class="tool-tag">04 • Quiz</span>
+                    </div>
+                    <h4>Practice Questions</h4>
+                    <p>Self-assessment multiple choice and conceptual questions to test your subject mastery.</p>
+                </div>
+                <span class="tool-action-link">Test Yourself →</span>
+            </div>
+
+            <!-- 5. Mind Maps -->
+            <div class="study-tool-card" onclick="openFeatureFromNav('mindmap')">
+                <div>
+                    <div class="tool-top-row">
+                        <div class="tool-icon-box orange">⌘</div>
+                        <span class="tool-tag">05 • Visual</span>
+                    </div>
+                    <h4>Mind Maps</h4>
+                    <p>Interactive visual knowledge graphs demonstrating how lecture concepts interrelate.</p>
+                </div>
+                <span class="tool-action-link">Explore Map →</span>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 4. RECENT UPLOADS SECTION -->
+    <section class="recent-section">
+        <div class="recent-header-flex">
+            <div>
+                <div class="section-kicker">RECENT ACTIVITY</div>
+                <h2 class="section-title">Recent Lecture Materials</h2>
+                <p class="section-subtitle">Jump back into your previously generated notes, flashcards, and quizzes</p>
+            </div>
+            <button class="btn-view-all" onclick="openHistoryModal()">
+                View All History →
+            </button>
+        </div>
+
+        <div class="recent-grid" id="recentList">
+            <!-- Dynamically populated via renderRecentUploads() -->
+        </div>
     </section>
 
 </main>
+
+
+<!-- SETTINGS & PREFERENCES MODAL -->
+<div id="settingsModal" class="modal-overlay" style="display:none;">
+  <div class="modal-box" style="max-width:500px;">
+    <div class="modal-header">
+      <h2>⚙️ Preferences & AI Settings</h2>
+      <button class="modal-close" onclick="closeSettingsModal()">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+      <div style="padding:14px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px;">
+        <strong style="font-size:13.5px; color:var(--text-primary); display:block;">🤖 AI Model Engine</strong>
+        <span style="font-size:12px; color:var(--text-muted); display:block; margin-top:2px;">Google Gemini 3.8 Flash Cascade (Auto-Optimized)</span>
+      </div>
+      <div style="padding:14px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px;">
+        <strong style="font-size:13.5px; color:var(--text-primary); display:block;">🔒 Data Privacy & Isolation</strong>
+        <span style="font-size:12px; color:var(--text-muted); display:block; margin-top:2px;">All uploaded documents & notes are strictly isolated to your personal account.</span>
+      </div>
+      <div style="padding:14px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px;">
+        <strong style="font-size:13.5px; color:var(--text-primary); display:block;">🎨 Display Theme</strong>
+        <span style="font-size:12px; color:var(--text-muted); display:block; margin-top:2px;">Warm Cream / Studio Light (Modern SaaS)</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-yt-cancel" onclick="closeSettingsModal()">Close</button>
+    </div>
+  </div>
+</div>
 
 
 <!-- DUAL AUDIO MODAL: RECORD MICROPHONE OR UPLOAD AUDIO/MUSIC FILE -->
@@ -906,8 +980,10 @@ function renderRecentUploads() {
 
     if (list.length === 0) {
         container.innerHTML = `
-            <div style="text-align:center; padding:24px 10px; color:#7d8ea5; font-size:13px;">
-                No uploads yet. Upload a PDF, audio/music file, or paste a link to get started!
+            <div style="grid-column: 1 / -1; text-align:center; padding:48px 20px; background:#FFFFFF; border:1px dashed rgba(15,23,42,0.12); border-radius:20px; color:var(--text-muted); font-size:14px;">
+                <div style="font-size:36px; margin-bottom:10px;">📂</div>
+                <strong style="color:var(--text-primary); font-size:16px; display:block; margin-bottom:4px;">No Lecture Materials Yet</strong>
+                Upload a lecture PDF, record audio, or paste a YouTube link to get started!
             </div>
         `;
         return;
@@ -915,18 +991,22 @@ function renderRecentUploads() {
 
     container.innerHTML = list.map(item => {
         const typeClass = item.type === "pdf" ? "pdf" : (item.type === "audio" ? "audio" : "video");
-        const iconText = item.type === "pdf" ? "PDF" : (item.type === "audio" ? "◉" : "▶");
-        const typeLabel = item.type === "pdf" ? `PDF • ${item.pages || 1} pages` : (item.type === "audio" ? "Audio • File/Recording" : "Video • YouTube");
+        const iconText = item.type === "pdf" ? "📄" : (item.type === "audio" ? "🎙️" : "▶");
+        const typeLabel = item.type === "pdf" ? `PDF • ${item.pages || 1} pages` : (item.type === "audio" ? "Audio Recording" : "YouTube Video");
 
         return `
-            <div class="recent-item" onclick="openExistingDocument('${encodeURIComponent(JSON.stringify(item))}')" style="cursor:pointer;" title="Click to open this lecture">
-                <div class="recent-icon ${typeClass}">${iconText}</div>
-                <div class="recent-info">
-                    <strong>${item.name}</strong>
-                    <span>${typeLabel} • ${item.time || 'Recently'}</span>
+            <div class="recent-card-modern" onclick="openExistingDocument('${encodeURIComponent(JSON.stringify(item))}')" title="Click to open this lecture in Workspace">
+                <div class="recent-type-icon ${typeClass}">${iconText}</div>
+                <div class="recent-card-body">
+                    <div class="recent-doc-title">${item.name}</div>
+                    <div class="recent-doc-meta">
+                        <span>${typeLabel}</span>
+                        <span>•</span>
+                        <span>${item.time || 'Processed'}</span>
+                    </div>
                 </div>
-                <b class="status">Completed</b>
-                <button class="dots" onclick="event.stopPropagation(); deleteRecentItem('${item.name}')">×</button>
+                <span class="recent-status-pill">Ready</span>
+                <button class="recent-delete-btn" onclick="event.stopPropagation(); deleteRecentItem('${item.name}')" title="Remove this lecture">×</button>
             </div>
         `;
     }).join("");
@@ -1039,18 +1119,86 @@ function loadStudentProfile(user) {
     const email = user.email || '';
     const initial = name.charAt(0).toUpperCase();
 
+    // Floating Navbar
+    const na = document.getElementById('navbarAvatar');
+    const nn = document.getElementById('navbarStudentName');
+    const da = document.getElementById('dropdownAvatar');
+    const dn = document.getElementById('dropdownName');
+    const de = document.getElementById('dropdownEmail');
+    const ma = document.getElementById('mobileNavAvatar');
+    const mn = document.getElementById('mobileNavName');
+    const me = document.getElementById('mobileNavEmail');
+
+    if (na) na.textContent = initial;
+    if (nn) nn.textContent = name;
+    if (da) da.textContent = initial;
+    if (dn) dn.textContent = name;
+    if (de) de.textContent = email;
+    if (ma) ma.textContent = initial;
+    if (mn) mn.textContent = name;
+    if (me) me.textContent = email;
+
+    // Legacy IDs fallback
     const sn = document.getElementById('sidebarStudentName');
     const se = document.getElementById('sidebarStudentEmail');
     const sa = document.getElementById('sidebarAvatar');
     const ta = document.getElementById('topbarAvatar');
-    const ma = document.getElementById('mobileAvatar');
+    const moba = document.getElementById('mobileAvatar');
 
     if (sn) sn.textContent = name;
     if (se) se.textContent = email;
     if (sa) sa.textContent = initial;
     if (ta) ta.textContent = initial;
-    if (ma) ma.textContent = initial;
+    if (moba) moba.textContent = initial;
 }
+
+function toggleUserDropdown(event) {
+    if (event) event.stopPropagation();
+    const dropdown = document.getElementById('accountDropdown');
+    const trigger = document.getElementById('userMenuBtn');
+    if (!dropdown) return;
+    dropdown.classList.toggle('show');
+    if (trigger) trigger.classList.toggle('active');
+}
+
+function closeUserDropdown() {
+    const dropdown = document.getElementById('accountDropdown');
+    const trigger = document.getElementById('userMenuBtn');
+    if (dropdown) dropdown.classList.remove('show');
+    if (trigger) trigger.classList.remove('active');
+}
+
+function toggleMobileNav() {
+    const drawer = document.getElementById('mobileNavDrawer');
+    if (drawer) drawer.classList.toggle('open');
+}
+
+function closeMobileNav() {
+    const drawer = document.getElementById('mobileNavDrawer');
+    if (drawer) drawer.classList.remove('open');
+}
+
+function openSettingsModal() {
+    closeUserDropdown();
+    const modal = document.getElementById('settingsModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    if (modal) modal.style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+    const userMenu = document.querySelector('.user-menu-container');
+    if (userMenu && !userMenu.contains(e.target)) {
+        closeUserDropdown();
+    }
+    const mobileNav = document.querySelector('.navbar-wrapper');
+    if (mobileNav && !mobileNav.contains(e.target)) {
+        closeMobileNav();
+    }
+});
 
 async function logoutUser() {
     try {
@@ -1660,80 +1808,53 @@ async function processYoutube() {
 }
 
 /* =========================================
-   SEARCH & MOBILE MENU
+   SEARCH & MODAL HANDLERS
 ========================================= */
 const searchInput = document.getElementById("searchInput");
-searchInput.addEventListener("input", function () {
-    const searchText = searchInput.value.toLowerCase().trim();
+if (searchInput) {
+    searchInput.addEventListener("input", function () {
+        const searchText = searchInput.value.toLowerCase().trim();
 
-    document.querySelectorAll(".feature-card").forEach(function (card) {
-        const text = card.textContent.toLowerCase();
-        card.style.display = !searchText || text.includes(searchText) ? "" : "none";
+        document.querySelectorAll(".study-tool-card, .feature-card").forEach(function (card) {
+            const text = card.textContent.toLowerCase();
+            card.style.display = !searchText || text.includes(searchText) ? "" : "none";
+        });
+
+        document.querySelectorAll(".recent-card-modern, .recent-item").forEach(function (item) {
+            const text = item.textContent.toLowerCase();
+            item.style.display = !searchText || text.includes(searchText) ? "" : "none";
+        });
     });
-
-    document.querySelectorAll(".recent-item").forEach(function (item) {
-        const text = item.textContent.toLowerCase();
-        item.style.display = !searchText || text.includes(searchText) ? "" : "none";
-    });
-});
-
-/* =========================================
-   MOBILE SIDEBAR DRAWER CONTROLLER
-========================================= */
-function toggleMobileSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    const backdrop = document.getElementById("sidebarBackdrop");
-    const isOpen = sidebar.classList.toggle("menu-open");
-    if (backdrop) backdrop.classList.toggle("active", isOpen);
-    document.body.classList.toggle("sidebar-open", isOpen);
 }
-
-function closeMobileSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    const backdrop = document.getElementById("sidebarBackdrop");
-    if (sidebar) sidebar.classList.remove("menu-open");
-    if (backdrop) backdrop.classList.remove("active");
-    document.body.classList.remove("sidebar-open");
-}
-
-function openMobileSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    const backdrop = document.getElementById("sidebarBackdrop");
-    if (sidebar) sidebar.classList.add("menu-open");
-    if (backdrop) backdrop.classList.add("active");
-    document.body.classList.add("sidebar-open");
-}
-
-// Close sidebar on navigation item click or outside click
-document.querySelectorAll(".sidebar-nav button, .student-profile").forEach(el => {
-    el.addEventListener("click", () => {
-        closeMobileSidebar();
-    });
-});
-
-document.addEventListener("click", function(e) {
-    const sidebar = document.getElementById("sidebar");
-    const mobileBtn = document.getElementById("mobileMenuBtn");
-    if (sidebar && sidebar.classList.contains("menu-open")) {
-        if (!sidebar.contains(e.target) && (!mobileBtn || !mobileBtn.contains(e.target))) {
-            closeMobileSidebar();
-        }
-    }
-});
 
 // Modal outside clicks
-document.getElementById("audioModal").addEventListener("click", function(e) {
-    if (e.target === this) closeAudioModal();
-});
-document.getElementById("youtubeModal").addEventListener("click", function(e) {
-    if (e.target === this) closeYouTubeModal();
-});
-document.getElementById("loginModal").addEventListener("click", function(e) {
-    if (e.target === this) closeLoginModal();
-});
-document.getElementById("historyModal").addEventListener("click", function(e) {
-    if (e.target === this) closeHistoryModal();
-});
+const audioModalEl = document.getElementById("audioModal");
+if (audioModalEl) {
+    audioModalEl.addEventListener("click", function(e) {
+        if (e.target === this) closeAudioModal();
+    });
+}
+
+const youtubeModalEl = document.getElementById("youtubeModal");
+if (youtubeModalEl) {
+    youtubeModalEl.addEventListener("click", function(e) {
+        if (e.target === this) closeYouTubeModal();
+    });
+}
+
+const historyModalEl = document.getElementById("historyModal");
+if (historyModalEl) {
+    historyModalEl.addEventListener("click", function(e) {
+        if (e.target === this) closeHistoryModal();
+    });
+}
+
+const settingsModalEl = document.getElementById("settingsModal");
+if (settingsModalEl) {
+    settingsModalEl.addEventListener("click", function(e) {
+        if (e.target === this) closeSettingsModal();
+    });
+}
 
 // Initialize on page load
 loadStudentProfile();
